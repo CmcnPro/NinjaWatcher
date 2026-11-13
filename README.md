@@ -18,6 +18,22 @@ A World of Warcraft addon that displays cumulative Need/Greed roll statistics, w
 - **Optional numerical alerts:** Enable local or party alerts if desired. Automatic alerts are off by default.
 - **Personal markers:** Keep local reference marks without changing a player’s statistics or reporting anyone to an external service.
 
+## Screenshots
+
+The screenshots below show the English interface. Colors, share-band descriptions, and alert settings reflect the configuration used for these screenshots, not necessarily the defaults.
+
+### Mouseover tooltip
+
+![Mouseover tooltip showing Need share and cumulative Need / Greed / total counts](assets/screenshots/mouseover-tooltip.png)
+
+### Player records
+
+![Player records with scan and sharing controls; player names are blurred](assets/screenshots/player-records.png)
+
+### Display & alerts
+
+![Display and alert settings, including sharing, labels, and language selection](assets/screenshots/display-and-alerts.png)
+
 ## Compatibility
 
 Designed for **WoW Forever 1.60.1 / Interface `16001` / game type `camelot`**.
