@@ -1,0 +1,35 @@
+# Development environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Private game data / credentials: never publish player catalogs
+WTF/
+**/WTF/
+SavedVariables/
+**/SavedVariables/
+NinjaWatcher.lua
+NinjaWatcher.lua.bak
+*.bak
+.env
+.env.*
+
+# Local maintenance tools belong outside this publishing repository
+/tests/
+/docs/
+/.github/workflows/
+/pyproject.toml
+/uv.lock
+/.python-version
+/requirements*.txt
+/维护工具/
+
+# Generated packages
+/dist/
+/build/
+*.zip
