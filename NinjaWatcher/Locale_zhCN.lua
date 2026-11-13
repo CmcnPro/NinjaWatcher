@@ -1,5 +1,5 @@
 local ADDON, NW = ...
-NW.strings = {
+NW.I18n.Register("zhCN", {
     CHAT_PREFIX="|cff66ccffNinjaWatcher|r",
     TOOLTIP_LABEL="掷骰统计参考", TOOLTIP_PENDING="扫描中…", TOOLTIP_UNKNOWN="数据不可读",
     TOOLTIP_STATUS_FAR="距离太远", TOOLTIP_STATUS_BUSY="接口忙碌", TOOLTIP_STATUS_COMBAT="战斗中",
@@ -45,12 +45,41 @@ NW.strings = {
     TAG_MODE_WHISPER="仅私聊", TAG_MODE_ALL="全部频道", TAG_MODE_OFF="关闭",
     TAG_BAD="聊天标签模式：off/whisper/all 或 关/私聊/全部。", TAG_SET="聊天标签：%s",
     TAG_UNKNOWN="(未记录)", TAG_GRAY="(无可用占比)", TAG_RATE="(%d%%)",
-}
-function NW.L(key, ...)
-    local text=NW.strings[key] or key
-    if select("#",...)>0 then
-        local ok,out=pcall(string.format,text,...)
-        if ok then return out end
-    end
-    return text
-end
+    TOOLTIP_SUMMARY="%s：%s", TOOLTIP_COUNTS="需求 %s / 贪婪 %s / 合计 %s",
+    SHARE_PREFIX="NinjaWatcher：%s %s", SHARE_COUNTS="；需求%s/贪婪%s",
+    SHARE_CAVEAT="统计不代表恶意需求", SHARE_SUFFIX="（%s %s；%s）",
+    TAG_SMALL_SUFFIX="·少", TAG_STALE_SUFFIX="·旧",
+    SETTINGS_TITLE="NinjaWatcher · 统计参考  %s", SETTINGS_CATEGORY="NinjaWatcher 统计参考",
+    SETTINGS_PLAYERS="玩家记录", SETTINGS_OPTIONS="显示与提醒",
+    SETTINGS_PLAYERS_HINT="悬停查看详情；Shift+点击分享。★仅为个人标记。",
+    SETTINGS_SCAN="扫描小队", SETTINGS_SORT="最近 / 占比排序", SETTINGS_CLEAR="清除全部记录",
+    SETTINGS_CLEAR_CONFIRM="5秒内再点确认", SETTINGS_PREVIOUS="上一页", SETTINGS_NEXT="下一页",
+    SETTINGS_COUNT="共 %d 条 · 第 %d / %d 页（每页 %d 条）",
+    SETTINGS_MODES="当前分享目标：%s\n框体标签：%s；聊天标签：%s",
+    OPTION_TOOLTIP="悬停显示统计", OPTION_SELF="悬停自己时显示统计",
+    OPTION_TOOLTIP_BAND="鼠标提示中显示占比分档描述（如“占比中等”）",
+    OPTION_BANDS="启用占比颜色及描述（非风险等级，默认关闭）",
+    OPTION_LOCAL_ALERT="启用小队本地数值提醒（默认关闭，累计掷骰至少30次）",
+    OPTION_PARTY_ALERT="启用5人小队自动公开数值提醒（默认关闭）", OPTION_UNKNOWN="框体标签显示未记录玩家",
+    OPTIONS_BOUNDARIES="可选占比分档界值（百分比，非经验证的行为界线）",
+    OPTIONS_APPLY="应用界值", OPTIONS_SHARE="切换分享目标", OPTIONS_BADGE="切换框体标签", OPTIONS_CHAT="切换聊天标签",
+    OPTIONS_EXPLANATION="需求占比为 N/(N+G)，不受进本次数影响；少计数仍显示占比。\n没有放弃估算，不根据计数认定恶意。记录和设置为账号级本地数据。\n公开分享和开启的队伍提醒会让其他玩家看到。\n扫描失败不续期旧快照。",
+    OPTIONS_RESET="恢复默认设置",
+    MENU_DETAIL="查看掷骰统计", MENU_SHARE="手动分享统计", MENU_MARK="个人标记（非举报）", MENU_UNMARK="取消个人标记",
+    INIT_FAILED="初始化失败（%s）：%s", DB_NEWER_SCHEMA="NinjaWatcher：数据库版本高于当前插件，拒绝覆盖",
+    HELP_MAIN="/nw 打开设置；/nw scan 扫描小队；/nw status 自身统计；/nw test 自测",
+    HELP_SHARE="/nw share [self|edit|party|raid|say|guild|whisper 玩家名] 手动分享",
+    HELP_TARGET="/nw target <目标> 分享目标；/nw broadcast 通报面板；/nw icon <minimap|float|hide>",
+    HELP_BANDS="/nw bands <on|off> 可选占比颜色；/nw tier <15 35 55> 界值；/nw rule [reset]",
+    HELP_LABELS="/nw badge <auto|on|off> 框体标签；/nw tag <off|whisper|all> 聊天标签",
+    HELP_CLEAR="/nw clear，再输入 /nw clear confirm 清除记录（含迁移备份）；/nw debug 扫描状态",
+    HELP_LANGUAGE="/nw language <auto|zhCN|enUS> 选择语言；输入 /reload 后生效",
+    TEST_FAILED="失败 %s", TEST_RESULTS="通过 %d / %d", CLEAR_DONE="已清除 %d 条记录。",
+    CLEAR_CONFIRM="输入 /nw clear confirm 确认清除全部记录、个人标记及迁移备份。",
+    BANDS_USAGE="/nw bands on 或 /nw bands off；仅为占比分档，不是风险等级。",
+    LEGACY_COMMAND="维护版已移除进本免责、放弃推算与第三方网站对接；这些旧命令不再生效。",
+    DEBUG_STATUS="状态 %s；队列 %d；记录 %d；超时 %d",
+    LANGUAGE_AUTO="自动", LANGUAGE_BUTTON="语言：%s", LANGUAGE_BAD="语言参数：auto、zhCN 或 enUS。",
+    LANGUAGE_CURRENT="当前语言：%s；已保存选择：%s。",
+    LANGUAGE_SAVED="已保存语言：%s。输入 /reload 后整个界面生效。",
+})

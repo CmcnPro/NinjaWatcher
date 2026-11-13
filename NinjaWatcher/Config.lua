@@ -1,7 +1,7 @@
 -- NinjaWatcher maintained baseline. No dungeon-based exemption or pass estimate.
 local ADDON, NW = ...
 NW.NAME = ADDON
-NW.VERSION = "0.3.1"
+NW.VERSION = "0.4.0"
 NW.RULE_VERSION = "share-v1"
 NW.BETA = false
 NW.STAT = { need = 1044, greed = 1043, dungeons = 932 }
@@ -19,7 +19,8 @@ NW.COLORS = {
     gray = { 0.62, 0.62, 0.62 }, white = { 1, 1, 1 }, pink = { 245/255, 140/255, 186/255 },
 }
 NW.DEFAULTS = {
-    tooltip = true, selfTooltip = true,
+    language = "auto",
+    tooltip = true, selfTooltip = true, tooltipBand = true,
     showBands = false, localAlert = false, partyAlert = false,
     cacheMinutes = 10, redCooldown = 300,
     shareTarget = "self", iconMode = "minimap", iconAngle = 45,
@@ -27,11 +28,3 @@ NW.DEFAULTS = {
     badgeMode = "auto", badgeShowUnknown = false,
     chatTagMode = "off", chatTagUnknown = false, chatTagRefresh = false,
 }
-function NW.L(key, ...)
-    local text = (NW.strings and NW.strings[key]) or key
-    if select("#", ...) > 0 then
-        local ok, formatted = pcall(string.format, text, ...)
-        if ok then return formatted end
-    end
-    return text
-end

@@ -4,7 +4,7 @@
 
 A World of Warcraft addon that displays cumulative Need/Greed roll statistics, with local player records, optional party alerts, and manual sharing.
 
-> **Currently Chinese-only.** The addon’s interface and in-game messages are available in **Simplified Chinese only**. An **English version is under development**, with more languages planned. This English README does not mean an English in-game version is available yet.
+> **Available in English and Simplified Chinese (v0.4.0).** The interface and messages follow your client language by default: Simplified Chinese on `zhCN`, English on other clients. Use `/nw language enUS` or `/nw language zhCN`, then `/reload`, to override the language. More languages are planned.
 
 > **Statistics provide context—not proof of loot abuse.** A high Need share does not establish malicious behavior, and a low share does not establish fair play.
 
@@ -22,7 +22,7 @@ A World of Warcraft addon that displays cumulative Need/Greed roll statistics, w
 
 Designed for **WoW Forever 1.60.1 / Interface `16001` / game type `camelot`**.
 
-Support for other Retail or Classic clients is not currently guaranteed. The in-game interface and messages are Chinese-only while English localization is in development.
+Support for other Retail or Classic clients is not currently guaranteed. Both English and Simplified Chinese are included; other client languages use English as the fallback.
 
 ## Installation
 
@@ -47,14 +47,16 @@ Support for other Retail or Classic clients is not currently guaranteed. The in-
 
 ## Using the addon
 
-Hover over a player to request their statistics. The tooltip shows only the summary and roll counts. The current Chinese display looks like this:
+Hover over a player to request their statistics. The tooltip shows only the summary and roll counts. The English display looks like this:
 
 ```text
-掷骰统计参考：需求占比 15.6%
-需求 26 / 贪婪 141 / 合计 167
+Roll statistics: Need share 15.6%
+Need 26 / Greed 141 / Total 167
 ```
 
-The first line is the **Need share**. The second lists **Need / Greed / total** counts. More details, including collection time, dungeon entries, and scan failures, are available in the `/nw` player catalog.
+The first line is the **Need share**. The second lists **Need / Greed / total** counts. Under `/nw` → **Display & alerts**, disable **Show share-band text in tooltips** to hide descriptions such as “Moderate share” (on by default; no reload required). The percentage, title, counts, and existing colors stay unchanged. Other views and shared messages are unaffected. Band descriptions appear only when global share bands are enabled.
+
+More details, including collection time, dungeon entries, and scan failures, are available in the `/nw` player catalog.
 
 You can also scan your current party with `/nw scan`, or inspect your own statistics with `/nw status`. Scans depend on the client’s public-statistics API and can be unavailable because of distance, combat restrictions, or hidden data.
 
@@ -74,13 +76,14 @@ Shift-clicking a catalog row uses your selected sharing destination. Sending thr
 
 ## Commands
 
-Command keywords work as shown below; their in-game output is currently in Chinese.
+Command keywords stay the same in both languages. Interface labels, help, reminders, and shared messages use the selected language.
 
 | Command | Purpose |
 | --- | --- |
 | `/nw` | Open records and settings |
 | `/nw scan` | Scan the current party |
 | `/nw status` | Show your own statistics |
+| `/nw language auto` / `zhCN` / `enUS` | Choose a language, then `/reload` to apply it |
 | `/nw share` | Share the hovered or targeted player’s statistics locally by default |
 | `/nw share party` | Send statistics to the party |
 | `/nw share whisper Player-Realm` | Share by whisper |
@@ -131,9 +134,20 @@ When upgrading from earlier versions, ambiguous old zero values may appear as un
 
 | Language | Status |
 | --- | --- |
-| Simplified Chinese | Available |
-| English | In development — not yet available in-game |
+| Simplified Chinese (`zhCN`) | Available |
+| English (`enUS`) | Available; also the fallback for other client languages |
 | Additional languages | Planned |
+
+Language preference is saved account-wide. The default is `auto`: a `zhCN` client uses Simplified Chinese, while `enUS`, `enGB`, and unsupported client languages use English.
+
+```text
+/nw language enUS   — English
+/nw language zhCN   — Simplified Chinese
+/nw language auto   — Follow the client
+/reload            — Apply the saved choice
+```
+
+You can also cycle the language button under Display & alerts. Changes apply after `/reload` so existing windows and newly displayed messages do not mix languages. Player records are not changed by switching languages. Shared messages use your selected addon language, not the recipient’s client language.
 
 ## Acknowledgements
 

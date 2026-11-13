@@ -44,7 +44,7 @@ local function normalise()
     if type(NinjaWatcherDB)~="table" then NinjaWatcherDB={} end
     local db=NinjaWatcherDB
     if type(db.version)=="number" and db.version>SCHEMA then
-        error("NinjaWatcher: newer database schema; refusing to overwrite")
+        error(NW.L("DB_NEWER_SCHEMA"))
     end
     if db.version~=SCHEMA then
         -- Keep a one-time pre-migration copy, including old classifier options

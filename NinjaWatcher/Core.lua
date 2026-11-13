@@ -8,7 +8,7 @@ function NW.Print(message,color)
 end
 local function safeInit(name,fn)
     local ok,err=pcall(fn)
-    if not ok then NW.Print("初始化失败（"..name.."）："..tostring(err),NW.COLORS.red) end
+    if not ok then NW.Print(NW.L("INIT_FAILED",name,tostring(err)),NW.COLORS.red) end
     return ok
 end
 function NW.ApplyRule(a,b,c)
@@ -26,10 +26,20 @@ local function savedRule()
         NW.Rate.SetRule(d.tier1,d.tier2,d.tier3)
     end
 end
+local function initData()
+    NW.DB.Init()
+    NW.I18n.Init()
+end
+function NW.SetLanguage(value)
+    if not NW.I18n.Set(value) then NW.Print(NW.L("LANGUAGE_BAD")) return false end
+    NW.Print(NW.L("LANGUAGE_SAVED",NW.I18n.Name(NW.I18n.Preference())))
+    if NW.Settings then NW.Settings.RefreshOptions() end
+    return true
+end
 local function login()
     if initialized then return end
-    -- A failed DB migration must stop initialization, not silently continue.
-    if not safeInit("DB",NW.DB.Init) then return end
+    -- Resolve language before creating any static labels or buttons.
+    if not safeInit("DB",initData) then return end
     initialized=true
     safeInit("Rule",savedRule)
     for _,name in ipairs({"Scan","Tooltip","Party","Settings","Broadcast","Badge","ChatTag"}) do
@@ -40,16 +50,13 @@ end
 events:RegisterEvent("ADDON_LOADED")
 events:RegisterEvent("PLAYER_LOGIN")
 events:SetScript("OnEvent",function(_,event,addon)
-    if event=="ADDON_LOADED" and addon==ADDON then safeInit("DB",NW.DB.Init)
+    if event=="ADDON_LOADED" and addon==ADDON then safeInit("DB",initData)
     elseif event=="PLAYER_LOGIN" then login() end
 end)
 local function help()
-    NW.Print("/nw 打开设置；/nw scan 扫描小队；/nw status 自身统计；/nw test 自测")
-    NW.Print("/nw share [self|edit|party|raid|say|guild|whisper 玩家名] 手动分享")
-    NW.Print("/nw target <目标> 分享目标；/nw broadcast 通报面板；/nw icon <minimap|float|hide>")
-    NW.Print("/nw bands <on|off> 可选占比颜色；/nw tier <15 35 55> 界值；/nw rule [reset]")
-    NW.Print("/nw badge <auto|on|off> 框体标签；/nw tag <off|whisper|all> 聊天标签")
-    NW.Print("/nw clear，再输入 /nw clear confirm 清除记录（含迁移备份）；/nw debug 扫描状态")
+    for _,key in ipairs({"HELP_MAIN","HELP_SHARE","HELP_TARGET","HELP_BANDS","HELP_LABELS","HELP_CLEAR","HELP_LANGUAGE"}) do
+        NW.Print(NW.L(key))
+    end
 end
 SLASH_NINJAWATCHER1="/nw"
 SLASH_NINJAWATCHER2="/ninjawatcher"
@@ -70,12 +77,12 @@ SlashCmdList.NINJAWATCHER=function(message)
         local results=NW.Rate.SelfTest()
         local passed=0
         for _,r in ipairs(results) do
-            if r.ok then passed=passed+1 else NW.Print("FAIL "..r.label,NW.COLORS.red) end
+            if r.ok then passed=passed+1 else NW.Print(NW.L("TEST_FAILED",r.label),NW.COLORS.red) end
         end
-        NW.Print(string.format("通过 %d / %d",passed,#results))
+        NW.Print(NW.L("TEST_RESULTS",passed,#results))
     elseif verb=="clear" then
-        if args=="confirm" then NW.Print("已清除 "..NW.DB.Clear().." 条记录。") NW.Settings.RefreshPlayers()
-        else NW.Print("输入 /nw clear confirm 确认清除全部记录、个人标记及迁移备份。") end
+        if args=="confirm" then NW.Print(NW.L("CLEAR_DONE",NW.DB.Clear())) NW.Settings.RefreshPlayers()
+        else NW.Print(NW.L("CLEAR_CONFIRM")) end
     elseif verb=="share" then
         local target,extra=args:match("^(%S+)%s*(.-)$")
         NW.Share.SendCurrent(target,extra~="" and extra or nil,target~=nil)
@@ -88,9 +95,14 @@ SlashCmdList.NINJAWATCHER=function(message)
         if args=="" then NW.Print(NW.Badge.ModeLabel()) else NW.Badge.SetMode(args) end
     elseif verb=="tag" then
         if args=="" then NW.Print(NW.ChatTag.ModeLabel()) else NW.ChatTag.SetMode(args) end
+    elseif verb=="language" or verb=="lang" then
+        if args=="" then
+            NW.Print(NW.L("LANGUAGE_CURRENT",NW.I18n.Name(NW.I18n.Current()),NW.I18n.Name(NW.I18n.Preference())))
+            NW.Print(NW.L("HELP_LANGUAGE"))
+        else NW.SetLanguage(args) end
     elseif verb=="bands" then
         if args=="on" or args=="off" then NW.DB.Set("showBands",args=="on") NW.Settings.Refresh()
-        else NW.Print("/nw bands on 或 /nw bands off；仅为占比分档，不是风险等级。") end
+        else NW.Print(NW.L("BANDS_USAGE")) end
     elseif verb=="tier" then
         local a,b,c=args:match("^(%S+)%s+(%S+)%s+(%S+)$")
         NW.ApplyRule(tonumber(a),tonumber(b),tonumber(c))
@@ -98,9 +110,9 @@ SlashCmdList.NINJAWATCHER=function(message)
         if args=="reset" then local d=NW.DEFAULTS NW.ApplyRule(d.tier1,d.tier2,d.tier3)
         else NW.Print(NW.L("CHAT_RULE_SET",NW.Rate.RuleValues())) end
     elseif verb=="model" or verb=="pass" or verb=="passid" or verb=="export" or verb=="web" then
-        NW.Print("维护版已移除进本免责、放弃推算与第三方网站对接；这些旧命令不再生效。")
+        NW.Print(NW.L("LEGACY_COMMAND"))
     elseif verb=="debug" then
         local d=NW.Scan.Debug()
-        NW.Print(string.format("状态 %s；队列 %d；记录 %d；超时 %d",d.state,d.queue,NW.DB.Count(),d.timeouts))
+        NW.Print(NW.L("DEBUG_STATUS",d.state,d.queue,NW.DB.Count(),d.timeouts))
     else help() end
 end

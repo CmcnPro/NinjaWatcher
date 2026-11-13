@@ -62,13 +62,13 @@ local function content(row, guid, status)
     if row then
         local result = Rate.Evaluate(row)
         color = Rate.VerdictColor(result)
-        lines[1] = NW.L("TOOLTIP_LABEL") .. "：" .. Rate.Summary(result)
+        lines[1] = NW.L("TOOLTIP_SUMMARY",NW.L("TOOLTIP_LABEL"),Rate.Summary(result,DB.Get("tooltipBand")))
         -- Keep mouseover compact; full context remains in the player catalog.
-        lines[2] = string.format("需求 %s / 贪婪 %s / 合计 %s",
+        lines[2] = NW.L("TOOLTIP_COUNTS",
             Rate.CountText(row, "need"), Rate.CountText(row, "greed"),
             result.rolls and tostring(result.rolls) or NW.L("VALUE_UNKNOWN"))
     else
-        lines[1] = NW.L("TOOLTIP_LABEL") .. "：" .. NW.L(STATUS_KEYS[status] or "TOOLTIP_UNKNOWN")
+        lines[1] = NW.L("TOOLTIP_SUMMARY",NW.L("TOOLTIP_LABEL"),NW.L(STATUS_KEYS[status] or "TOOLTIP_UNKNOWN"))
     end
     return lines, color
 end
@@ -116,6 +116,7 @@ local function paint(tooltip, row, identity, status, refreshOnly)
             end
         end
         record.status = row and "READY" or status
+        record.row = row
         record.identity = identity
         shown = record
         relayout(tooltip)
@@ -125,6 +126,15 @@ local function paint(tooltip, row, identity, status, refreshOnly)
 end
 function Tooltip.Paint(tooltip,row,identity) paint(tooltip,row,identity,"READY") end
 function Tooltip.PaintStatus(tooltip,status,identity) paint(tooltip,nil,identity,status) end
+function Tooltip.RefreshDisplay()
+    if drawing or not shown then return end
+    local tooltip = shown.tooltip
+    local ok, visible = Stats.SafeCall(tooltip.IsShown,tooltip)
+    if not ok or not visible then return end
+    local identity = currentIdentity(tooltip)
+    if not identity or not equal(identity.guid,shown.guid) then return end
+    paint(tooltip,shown.row,identity,shown.status,true)
+end
 local function refresh(guid,row,status)
     if drawing or not shown or NW.IsSecret(guid) or not equal(shown.guid,guid) then return end
     local tooltip = shown.tooltip

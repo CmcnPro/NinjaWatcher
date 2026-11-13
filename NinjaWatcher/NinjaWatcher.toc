@@ -1,13 +1,17 @@
 ## Interface: 16001
-## Title: NinjaWatcher - 掷骰统计参考
-## Notes: 展示需求/贪婪累计统计与需求占比，不根据进本次数免责，不认定恶意需求。默认不公开发送。
+## Title: NinjaWatcher - Roll Statistics
+## Title-zhCN: NinjaWatcher - 掷骰统计参考
+## Notes: Local Need/Greed roll statistics and optional sharing. Statistics are not proof of loot abuse.
+## Notes-zhCN: 需求/贪婪累计统计与可选分享。仅供参考，不认定恶意需求。
 ## Author: NinjaWatcher contributors (see ../AUTHORS.md)
-## Version: 0.3.1
+## Version: 0.4.0
 ## SavedVariables: NinjaWatcherDB
 ## AllowLoadGameType: camelot
 ## DefaultState: enabled
 
 Config.lua
+Locale.lua
+Locale_enUS.lua
 Locale_zhCN.lua
 DB.lua
 Stats.lua

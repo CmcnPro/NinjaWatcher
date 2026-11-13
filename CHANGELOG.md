@@ -1,6 +1,20 @@
 # Changelog / 更新记录
 
-## Unreleased / 未发布
+## 0.4.0 — English & Simplified Chinese / 中英双语
+
+- Add a default-on setting to show or hide only the tooltip's share-band description (e.g. Moderate share), keeping the percentage, colors, counts, and other views unchanged.
+- 新增“鼠标提示中显示占比分档描述”开关，默认开启；仅控制“占比中等”等文字，百分比、颜色、计数和其他界面不变，无需重载。
+
+- Add English and Simplified Chinese for the tooltip, settings, menus, help, alerts, sharing, and local labels.
+- Follow the client language by default; unsupported languages fall back to English.
+- Add `/nw language auto|zhCN|enUS` and a language button; `/reload` applies the saved account-wide choice.
+- Preserve existing player data, the two-line tooltip, and chat-link destinations when changing language.
+- 游戏内提示、设置、菜单、命令帮助、提醒、分享和本地标签统一接入简体中文／英文。
+- 默认跟随客户端，未支持的语言回退英文。
+- 新增语言命令和设置按钮，语言按账号保存，`/reload` 后统一生效。
+- 切换语言不影响玩家记录，保留两行悬停提示和原有聊天链接目标。
+
+### Compact tooltip / 精简悬停
 
 - Keep mouseover information to two lines: the statistical summary and Need / Greed / total counts.
 - 鼠标提示精简为统计摘要及需求／贪婪／合计两行，不再显示进本次数、采集时间和长说明。完整记录仍可在玩家目录查看。

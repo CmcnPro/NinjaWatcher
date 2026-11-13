@@ -3,7 +3,7 @@ local ADDON, NW = ...
 local Settings = {}
 NW.Settings = Settings
 local DB, Rate, Scan, Stats = NW.DB, NW.Rate, NW.Scan, NW.Stats
-local frame, listPage, optionsPage, counter, detailText
+local frame, listPage, optionsPage, counter, detailText, languageButton
 local rows, checks, edits = {}, {}, {}
 local pageNumber, pageSize, sortMode = 1, 20, "recent"
 local highlightGUID, clearUntil = nil, 0
@@ -90,13 +90,14 @@ function Settings.RefreshPlayers()
             row:Show()
         else row:Hide() end
     end
-    counter:SetText(string.format("共 %d 条 · 第 %d / %d 页（每页 %d 条）",#items,pageNumber,pages,pageSize))
+    counter:SetText(NW.L("SETTINGS_COUNT",#items,pageNumber,pages,pageSize))
 end
 function Settings.RefreshOptions()
     for k,cb in pairs(checks) do cb:SetChecked(DB.Get(k)==true) end
     local values={Rate.RuleValues()}
     for i,box in ipairs(edits) do box:SetText(tostring(values[i])) end
-    if detailText then detailText:SetText("当前手动分享目标："..NW.Share.TargetLabel().."\n"..NW.Badge.ModeLabel().."；聊天标签："..NW.ChatTag.ModeLabel()) end
+    if detailText then detailText:SetText(NW.L("SETTINGS_MODES",NW.Share.TargetLabel(),NW.Badge.ModeLabel(),NW.ChatTag.ModeLabel())) end
+    if languageButton then languageButton:SetText(NW.L("LANGUAGE_BUTTON",NW.I18n.Name(NW.I18n.Preference()))) end
 end
 function Settings.RefreshRuleUI() Settings.RefreshOptions() Settings.RefreshPlayers() end
 function Settings.RefreshLinkUI() Settings.RefreshOptions() end
@@ -146,6 +147,7 @@ local function checkbox(parent,key,text,y)
     label(parent,text,34,y-5,555)
     cb:SetScript("OnClick",function(self)
         DB.Set(key,self:GetChecked()==true)
+        if key=="tooltipBand" then NW.Tooltip.RefreshDisplay() end
         Settings.RefreshPlayers()
         if NW.Badge then pcall(NW.Badge.Refresh) end
     end)
@@ -158,40 +160,39 @@ function Settings.Init()
     frame=CreateFrame("Frame","NinjaWatcherSettingsFrame",UIParent)
     frame:SetSize(640,700)
     frame:Hide()
-    label(frame,"NinjaWatcher · 统计参考  "..NW.VERSION,8,-8,600)
+    label(frame,NW.L("SETTINGS_TITLE",NW.VERSION),8,-8,600)
     label(frame,NW.L("RATE_HINT"),8,-32,600)
     listPage=CreateFrame("Frame",nil,frame)
     listPage:SetPoint("TOPLEFT",frame,"TOPLEFT",8,-100)
     listPage:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-8,8)
     optionsPage=CreateFrame("Frame",nil,frame)
     optionsPage:SetAllPoints(listPage)
-    button(frame,"玩家记录",8,-68,110,function() listPage:Show() optionsPage:Hide() Settings.RefreshPlayers() end)
-    button(frame,"显示与提醒",126,-68,130,function() listPage:Hide() optionsPage:Show() Settings.RefreshOptions() end)
-    label(listPage,"悬停查看计数、采集时间与最近失败；Shift+点击手动分享。★仅为个人标记。",4,-4,600)
-    button(listPage,"扫描小队",4,-30,110,function() NW.Party.ScanAll(true) end)
-    button(listPage,"最近 / 占比排序",122,-30,140,function()
+    button(frame,NW.L("SETTINGS_PLAYERS"),8,-68,110,function() listPage:Show() optionsPage:Hide() Settings.RefreshPlayers() end)
+    button(frame,NW.L("SETTINGS_OPTIONS"),126,-68,130,function() listPage:Hide() optionsPage:Show() Settings.RefreshOptions() end)
+    label(listPage,NW.L("SETTINGS_PLAYERS_HINT"),4,-4,600)
+    button(listPage,NW.L("SETTINGS_SCAN"),4,-30,110,function() NW.Party.ScanAll(true) end)
+    button(listPage,NW.L("SETTINGS_SORT"),122,-30,140,function()
         sortMode=sortMode=="recent" and "rate" or "recent"
         highlightGUID=nil pageNumber=1 Settings.RefreshPlayers()
     end)
     local clearButton
-    clearButton=button(listPage,"清除全部记录",270,-30,140,function()
+    clearButton=button(listPage,NW.L("SETTINGS_CLEAR"),270,-30,140,function()
         if time()>clearUntil then
-            clearUntil=time()+5 clearButton:SetText("5秒内再点确认") return
+            clearUntil=time()+5 clearButton:SetText(NW.L("SETTINGS_CLEAR_CONFIRM")) return
         end
-        DB.Clear() clearUntil=0 clearButton:SetText("清除全部记录") Settings.RefreshPlayers()
+        DB.Clear() clearUntil=0 clearButton:SetText(NW.L("SETTINGS_CLEAR")) Settings.RefreshPlayers()
     end)
-    button(listPage,"上一页",4,-560,90,function() highlightGUID=nil pageNumber=pageNumber-1 Settings.RefreshPlayers() end)
-    button(listPage,"下一页",102,-560,90,function() highlightGUID=nil pageNumber=pageNumber+1 Settings.RefreshPlayers() end)
+    button(listPage,NW.L("SETTINGS_PREVIOUS"),4,-560,90,function() highlightGUID=nil pageNumber=pageNumber-1 Settings.RefreshPlayers() end)
+    button(listPage,NW.L("SETTINGS_NEXT"),102,-560,90,function() highlightGUID=nil pageNumber=pageNumber+1 Settings.RefreshPlayers() end)
     counter=label(listPage,"",4,-70,600)
     local opts={
-        {"tooltip","悬停显示统计"},{"selfTooltip","悬停自己时显示统计"},
-        {"showBands","启用占比颜色及描述（非风险等级，默认关闭）"},
-        {"localAlert","启用小队本地数值提醒（默认关闭，累计掷骰至少30次）"},
-        {"partyAlert","启用5人小队自动公开数值提醒（默认关闭）"},
-        {"badgeShowUnknown","框体标签显示未记录玩家"},
+        {"tooltip","OPTION_TOOLTIP"},{"selfTooltip","OPTION_SELF"},
+        {"tooltipBand","OPTION_TOOLTIP_BAND"},
+        {"showBands","OPTION_BANDS"},{"localAlert","OPTION_LOCAL_ALERT"},
+        {"partyAlert","OPTION_PARTY_ALERT"},{"badgeShowUnknown","OPTION_UNKNOWN"},
     }
-    for i,o in ipairs(opts) do checkbox(optionsPage,o[1],o[2],-(i-1)*32) end
-    label(optionsPage,"可选占比分档界值（百分比，非经验证的行为界线）",8,-204,590)
+    for i,o in ipairs(opts) do checkbox(optionsPage,o[1],NW.L(o[2]),-(i-1)*28) end
+    label(optionsPage,NW.L("OPTIONS_BOUNDARIES"),8,-204,590)
     local values={Rate.RuleValues()}
     for i=1,3 do
         local box=CreateFrame("EditBox",nil,optionsPage,"InputBoxTemplate")
@@ -200,25 +201,31 @@ function Settings.Init()
         box:SetScript("OnEscapePressed",function(self) self:ClearFocus() end)
         edits[i]=box
     end
-    button(optionsPage,"应用界值",230,-232,110,function()
+    button(optionsPage,NW.L("OPTIONS_APPLY"),230,-232,110,function()
         NW.ApplyRule(tonumber(edits[1]:GetText()),tonumber(edits[2]:GetText()),tonumber(edits[3]:GetText()))
     end)
-    button(optionsPage,"切换分享目标",8,-276,160,function() NW.Share.NextTarget() Settings.RefreshOptions() end)
-    button(optionsPage,"切换框体标签",176,-276,160,function() NW.Badge.NextMode() Settings.RefreshOptions() end)
-    button(optionsPage,"切换聊天标签",344,-276,160,function() NW.ChatTag.NextMode() Settings.RefreshOptions() end)
+    button(optionsPage,NW.L("OPTIONS_SHARE"),8,-276,160,function() NW.Share.NextTarget() Settings.RefreshOptions() end)
+    button(optionsPage,NW.L("OPTIONS_BADGE"),176,-276,160,function() NW.Badge.NextMode() Settings.RefreshOptions() end)
+    button(optionsPage,NW.L("OPTIONS_CHAT"),344,-276,160,function() NW.ChatTag.NextMode() Settings.RefreshOptions() end)
     detailText=label(optionsPage,"",8,-314,590)
-    label(optionsPage,"需求占比始终为 N/(N+G)，不受进本次数影响。少于20次仅提示计数较少，不隐藏占比。\n进本次数可独立缺失；没有放弃估算，不根据累计计数认定恶意。\n所有记录和设置为账号级本地数据；公开分享和自动小队提醒会让其他玩家看到。\n数据读取失败不刷新旧快照；过期记录会明确标记。",8,-370,590)
-    button(optionsPage,"恢复默认设置",8,-486,160,function()
+    languageButton=button(optionsPage,NW.L("LANGUAGE_BUTTON",NW.I18n.Name(NW.I18n.Preference())),8,-354,235,function()
+        NW.SetLanguage(NW.I18n.Next())
+    end)
+    label(optionsPage,NW.L("HELP_LANGUAGE"),252,-354,350)
+    label(optionsPage,NW.L("OPTIONS_EXPLANATION"),8,-404,590)
+    local function resetOptions()
         DB.ResetOptions()
         local d=NW.DEFAULTS NW.ApplyRule(d.tier1,d.tier2,d.tier3)
         NW.Broadcast.SetIconMode(d.iconMode)
+        NW.Print(NW.L("LANGUAGE_SAVED",NW.I18n.Name("auto")))
         Settings.Refresh()
-    end)
+    end
+    button(optionsPage,NW.L("OPTIONS_RESET"),8,-550,160,resetOptions)
     frame:SetScript("OnShow",Settings.Refresh)
     frame.OnRefresh=Settings.Refresh
     frame.OnCommit=function() end
-    frame.OnDefault=function() DB.ResetOptions() local d=NW.DEFAULTS NW.ApplyRule(d.tier1,d.tier2,d.tier3) Settings.Refresh() end
-    local category=api.RegisterCanvasLayoutCategory(frame,"NinjaWatcher 统计参考")
+    frame.OnDefault=resetOptions
+    local category=api.RegisterCanvasLayoutCategory(frame,NW.L("SETTINGS_CATEGORY"))
     api.RegisterAddOnCategory(category)
     Settings.category=category
     listPage:Show() optionsPage:Hide()
@@ -240,11 +247,11 @@ function Settings.InitUnitMenu()
             added[description]=true
             local guid=identity.guid
             if description.CreateDivider then description:CreateDivider() end
-            description:CreateButton("查看掷骰统计",function()
+            description:CreateButton(NW.L("MENU_DETAIL"),function()
                 Settings.ShowPlayers(guid) Scan.Request(unit,{manual=true,force=true})
             end)
-            description:CreateButton("手动分享统计",function() NW.Share.Send(guid,unit) end)
-            description:CreateButton(DB.Reported(guid) and "取消个人标记" or "个人标记（非举报）",function() Settings.ToggleReport(guid,unit) end)
+            description:CreateButton(NW.L("MENU_SHARE"),function() NW.Share.Send(guid,unit) end)
+            description:CreateButton(NW.L(DB.Reported(guid) and "MENU_UNMARK" or "MENU_MARK"),function() Settings.ToggleReport(guid,unit) end)
         end)
     end
 end

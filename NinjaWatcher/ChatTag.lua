@@ -137,8 +137,8 @@ local function tagFor(row)
     local result = Rate.Evaluate(row)
     if result.status ~= "ok" then return NW.L("TAG_GRAY"), NW.COLORS.gray end
     local pct = math.floor(result.ratio * 100 + 0.5)
-    local suffix = result.sampleLevel == "small" and "·少" or ""
-    if not DB.IsFresh(row) then suffix = suffix .. "·旧" end
+    local suffix = result.sampleLevel == "small" and NW.L("TAG_SMALL_SUFFIX") or ""
+    if not DB.IsFresh(row) then suffix = suffix .. NW.L("TAG_STALE_SUFFIX") end
     return string.format("(%d%%%s)", pct, suffix), Rate.Color(result.band)
 end
 

@@ -36,12 +36,13 @@ local function build(guid,row)
     local realm=clean(row.realm,48)
     if realm then name=name.."-"..realm end
     -- Never truncate away the caveat. Drop optional details first.
-    local prefix="NinjaWatcher："..name.." "..Rate.Summary(Rate.Evaluate(row))
+    local summary=Rate.Summary(Rate.Evaluate(row))
+    local prefix=NW.L("SHARE_PREFIX",name,summary)
     local note=DB.IsFresh(row) and NW.L("DATA_RECENT") or NW.L("DATA_STALE")
-    local suffix="（"..note.." "..DB.TimeText(row).."；统计不代表恶意需求）"
-    local message=prefix.."；需求"..Rate.CountText(row,"need").."/贪婪"..Rate.CountText(row,"greed")..suffix
+    local suffix=NW.L("SHARE_SUFFIX",note,DB.TimeText(row),NW.L("SHARE_CAVEAT"))
+    local message=prefix..NW.L("SHARE_COUNTS",Rate.CountText(row,"need"),Rate.CountText(row,"greed"))..suffix
     if #message>255 then message=prefix..suffix end
-    if #message>255 then message="NinjaWatcher："..shorten(name,36).." "..Rate.Summary(Rate.Evaluate(row))..suffix end
+    if #message>255 then message=NW.L("SHARE_PREFIX",shorten(name,36),summary)..suffix end
     if #message>255 then return nil end
     return message
 end

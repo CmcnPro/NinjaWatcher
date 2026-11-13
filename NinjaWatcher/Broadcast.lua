@@ -22,7 +22,7 @@ NW.Broadcast = Broadcast
 local DB, Stats, Share = NW.DB, NW.Stats, NW.Share
 
 local ROW_HEIGHT = 28
-local PANEL_WIDTH = 420
+local PANEL_WIDTH = 520
 local PANEL_HEIGHT = 366
 
 local frame, icon, scroll, scrollChild, emptyText, statusText, iconModeButton
@@ -161,7 +161,7 @@ local function makeRow(index)
 
     local verdict = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     verdict:SetPoint("LEFT", row, "LEFT", 128, 0)
-    verdict:SetWidth(150)
+    verdict:SetWidth(220)
     verdict:SetJustifyH("LEFT")
     verdict:SetHeight(ROW_HEIGHT)
 

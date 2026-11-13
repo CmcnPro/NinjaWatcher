@@ -63,12 +63,12 @@ function Rate.VerdictColor(result)
     if not result or result.status ~= "ok" then return NW.COLORS.gray end
     return Rate.Color(result.band)
 end
-function Rate.Summary(result)
+function Rate.Summary(result, showBand)
     if not result or result.status == "unknown" then return NW.L("TOOLTIP_UNKNOWN") end
     if result.status == "empty" then return NW.L("EMPTY_ROLLS") end
     local text = NW.L("SHARE_RATE", result.ratio*100)
     if result.sampleLevel == "small" then text = text .. " · " .. NW.L("SMALL_SAMPLE") end
-    if NW.DB and NW.DB.Get("showBands") == true then
+    if showBand ~= false and NW.DB and NW.DB.Get("showBands") == true then
         text = text .. " · " .. NW.L(Rate.BandLabelKey(result.band))
     end
     return text
