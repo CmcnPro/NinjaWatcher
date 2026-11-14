@@ -8,19 +8,33 @@ A World of Warcraft addon that displays cumulative Need/Greed roll statistics, w
 
 > **Statistics provide context—not proof of loot abuse.** A high Need share does not establish malicious behavior, and a low share does not establish fair play.
 
-## Important warning: account suspension risk on Chinese servers
+## Chinese-server enforcement risk and maintainer position
 
-**Players on Chinese servers should stop using and uninstall this addon. Renaming it does not constitute permission and does not guarantee protection from detection or account suspension.**
+**The Chinese-server operator has issued an account-suspension warning targeting this addon. Disclosing this risk does not endorse that response, establish a worldwide Blizzard ban, or establish that the addon technically constitutes cheating. Renaming does not guarantee protection from detection or penalties.**
 
-The user-provided in-game customer-support notice below explicitly names `NinjaWatcher` as a prohibited addon. It states that, starting at **00:00 on November 15**, accounts that continue using it will receive a **three-day suspension**, with progressively longer suspensions for repeated violations. The screenshot does not show a year; consult the operator's latest announcements and support notices.
+### Reported notice and regional differences
 
-The notice also prohibits third-party addons from improperly collecting, displaying, distributing, or selling player information and activity records, and from rating, compiling statistics about, or displaying assessments of players in-game. The restriction is not merely about the addon name: renaming it, keeping output local, or disabling sharing does not establish compliance.
+The user-provided in-game customer-support notice below explicitly names `NinjaWatcher` as a prohibited addon. It states that, starting at **00:00 on November 15**, accounts that continue using it will receive a **three-day suspension**, with progressively longer suspensions for repeated violations. The screenshot does not show a year; consult the operator's latest announcements and support notices. We are quoting the penalties described in the notice, not claiming to have independently verified individual suspension cases.
 
-- **Chinese servers:** The warning above establishes a risk of account suspension. Installation or continued use is not recommended.
-- **Blizzard-operated servers:** According to the user's report, there are currently no restrictions specifically targeting this addon. This is not official authorization or a safety guarantee; regional rules and client compatibility must still be checked separately.
-- **Detection method:** The user reports that detection involves the addon name, but we cannot independently confirm that detection relies on names alone. No rename is promised to bypass detection.
+The notice also includes third-party collection, display, distribution, and sale of player information and activity records, as well as in-game player assessments, within its stated prohibitions. This describes **the Chinese-server operator's enforcement position**; it does not establish that this addon performs every listed activity, nor is it independent evidence of its technical nature.
+
+- **Chinese servers:** A notice explicitly targeting this addon has been received, with the account penalties described above. Users should be aware of this practical enforcement risk.
+- **Blizzard-operated servers:** According to user reports received so far, no related prohibition notice targeting this addon has been received. The Chinese operator's restriction must not be presented as a worldwide Blizzard ban; absence of a notice is also not official approval or a safety guarantee. Regional rules and client compatibility must be checked separately.
+- **Detection method:** Users report that detection involves the addon name, but we cannot independently confirm that it relies on names alone. Renaming, keeping output local, or disabling sharing does not guarantee protection from penalties.
 
 ![User-provided Chinese-server customer-support notice about prohibited addons](assets/notices/china-operator-warning.png)
+
+### Data sources and maintainer position
+
+The addon reads cumulative Need/Greed statistics through client-provided APIs such as `GetStatistic`, `SetAchievementComparisonUnit`, and `GetComparisonStatistic`, then consolidates them for display. Unreadable or restricted results are treated as unavailable; the addon does not attempt to bypass access restrictions. Users report that these statistics are also viewable in the game's native achievement/statistics interface; the exact presentation should be checked in the relevant client.
+
+**Consolidating data exposed by client APIs is technically different from exploiting APIs, reading non-public information, or bypassing access controls.** API availability does not automatically mean the operator permits every form of display or sharing. Conversely, listing an addon as prohibited does not, by itself, establish that it technically constitutes cheating or information theft.
+
+The maintainer's position is that, for this kind of public-statistics aggregation, operators should clearly explain the restricted behavior, reasons, and scope; prioritize API restrictions, client-side disabling, or other appropriate technical measures; and provide a reasonable transition rather than substitute threats of account penalties for an explanation. **Acknowledging the risk of penalties does not endorse their necessity or proportionality.**
+
+### Original release thread and code licensing
+
+According to information provided by the user, the original author's release thread was removed by the Chinese operator, **not voluntarily withdrawn by the author**. Its removal must not be taken as evidence that the author abandoned maintenance, revoked permission, or endorsed the operator's response. Thread removal and code licensing are separate issues: upstream permissions remain unconfirmed, as explained under Licensing status below and in [AUTHORS.md](AUTHORS.md).
 
 ## Features
 
