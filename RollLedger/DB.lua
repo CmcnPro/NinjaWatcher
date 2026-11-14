@@ -1,11 +1,11 @@
 -- Schema 2: latest observations, last scan attempts and independent personal notes.
-local ADDON, NW = ...
+local ADDON, RL = ...
 local DB = {}
-NW.DB = DB
+RL.DB = DB
 local SCHEMA = 2
-local function count(v) return NW.Rate.IsCount(v) end
+local function count(v) return RL.Rate.IsCount(v) end
 local function text(v, limit)
-    if NW.IsSecret(v) or type(v) ~= "string" then return nil end
+    if RL.IsSecret(v) or type(v) ~= "string" then return nil end
     local s = v:gsub("[%c|]", " ")
     if s == "" then return nil end
     local n = limit or 160
@@ -17,7 +17,7 @@ local function text(v, limit)
     return s
 end
 local function guidOK(guid)
-    return not NW.IsSecret(guid) and type(guid)=="string" and guid~=""
+    return not RL.IsSecret(guid) and type(guid)=="string" and guid~=""
 end
 local function copy(v)
     if type(v)~="table" then return v end
@@ -41,10 +41,10 @@ local function cleanRow(row)
     return out
 end
 local function normalise()
-    if type(NinjaWatcherDB)~="table" then NinjaWatcherDB={} end
-    local db=NinjaWatcherDB
+    if type(RollLedgerDB)~="table" then RollLedgerDB={} end
+    local db=RollLedgerDB
     if type(db.version)=="number" and db.version>SCHEMA then
-        error(NW.L("DB_NEWER_SCHEMA"))
+        error(RL.L("DB_NEWER_SCHEMA"))
     end
     if db.version~=SCHEMA then
         -- Keep a one-time pre-migration copy, including old classifier options
@@ -67,13 +67,13 @@ local function normalise()
     for _,k in ipairs({"options","players","reports","attempts"}) do
         if type(db[k])~="table" then db[k]={} end
     end
-    for k,v in pairs(NW.DEFAULTS) do if db.options[k]==nil then db.options[k]=v end end
+    for k,v in pairs(RL.DEFAULTS) do if db.options[k]==nil then db.options[k]=v end end
     return db
 end
 function DB.Init() return normalise() end
 function DB.Get(k)
     local v=normalise().options[k]
-    if v==nil then return NW.DEFAULTS[k] end
+    if v==nil then return RL.DEFAULTS[k] end
     return v
 end
 function DB.Set(k,v) normalise().options[k]=v end
@@ -109,13 +109,13 @@ function DB.LastAttempt(guid)
     return guidOK(guid) and normalise().attempts[guid] or nil
 end
 function DB.IsFresh(row)
-    if type(row)~="table" or not count(row.at) or not NW.Stats.RowUsable(row) then return false end
+    if type(row)~="table" or not count(row.at) or not RL.Stats.RowUsable(row) then return false end
     local ttl=tonumber(DB.Get("cacheMinutes")) or 10
     local age=time()-row.at
     return age>=0 and age<math.max(1,ttl)*60
 end
 function DB.TimeText(row)
-    if not row or not count(row.at) then return NW.L("VALUE_UNKNOWN") end
+    if not row or not count(row.at) then return RL.L("VALUE_UNKNOWN") end
     if type(date)=="function" then
         local ok,s=pcall(date,"%m-%d %H:%M",row.at)
         if ok then return s end
@@ -123,11 +123,11 @@ function DB.TimeText(row)
     return tostring(row.at)
 end
 function DB.DataNote(guid,row)
-    local note=DB.IsFresh(row) and NW.L("DATA_RECENT") or NW.L("DATA_STALE")
-    note=note .. " · " .. NW.L("DATA_COLLECTED",DB.TimeText(row))
+    local note=DB.IsFresh(row) and RL.L("DATA_RECENT") or RL.L("DATA_STALE")
+    note=note .. " · " .. RL.L("DATA_COLLECTED",DB.TimeText(row))
     local attempt=DB.LastAttempt(guid)
     if attempt and attempt.status~="READY" and (not row or attempt.at >= (row.at or 0)) then
-        note=note .. " · " .. NW.L("DATA_LAST_FAILED",NW.L("SCAN_"..attempt.status))
+        note=note .. " · " .. RL.L("DATA_LAST_FAILED",RL.L("SCAN_"..attempt.status))
     end
     return note
 end
@@ -190,7 +190,7 @@ function DB.SetReport(guid,snapshot)
     if not guidOK(guid) then return nil end
     local r=copy(type(snapshot)=="table" and snapshot or {})
     r.at=r.at or time()
-    r.ruleVersion=NW.RULE_VERSION
+    r.ruleVersion=RL.RULE_VERSION
     normalise().reports[guid]=r
     return r
 end

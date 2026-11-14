@@ -1,4 +1,4 @@
--- NinjaWatcher - 掷骰统计参考
+-- RollLedger - 掷骰统计参考
 -- Watch a 5-player party. Both local and public numerical reminders default
 -- OFF and require at least 30 recorded rolls. No behavioural accusations.
 -- Local reminders use the upper descriptive bands; public ones use the top
@@ -6,12 +6,12 @@
 --
 -- Raids and battlegrounds are ignored. No invite, trade or mail is ever sent.
 
-local ADDON, NW = ...
+local ADDON, RL = ...
 
 local Party = {}
-NW.Party = Party
+RL.Party = Party
 
-local Stats, Scan, Rate, DB = NW.Stats, NW.Scan, NW.Rate, NW.DB
+local Stats, Scan, Rate, DB = RL.Stats, RL.Scan, RL.Rate, RL.DB
 
 local seen = {}
 local alertPending = {}
@@ -51,9 +51,9 @@ local function localAlert(guid, row, result, red)
     local seconds = tonumber(DB.Get("redCooldown")) or 300
     if cooldown(guid, seconds) then return end
     local name = row.name or "?"
-    local message = NW.L("ALERT_LOCAL", name, result.ratio * 100, row.need, row.greed)
+    local message = RL.L("ALERT_LOCAL", name, result.ratio * 100, row.need, row.greed)
         .. " · " .. DB.DataNote(guid, row)
-    NW.Print(message, red and NW.COLORS.red or NW.COLORS.yellow)
+    RL.Print(message, red and RL.COLORS.red or RL.COLORS.yellow)
     alerted[guid] = alerted[guid] or {}
     alerted[guid].localAt = now()
 end
@@ -65,7 +65,7 @@ local function partyAlert(guid, row)
     local record = alerted[guid]
     local last = record and tonumber(record.partyAt) or 0
     if now() - last < seconds then return false end
-    if not NW.Share.Broadcast(guid, "party") then return false end
+    if not RL.Share.Broadcast(guid, "party") then return false end
     alerted[guid] = alerted[guid] or {}
     alerted[guid].partyAt = now()
     return true
@@ -75,7 +75,7 @@ local function evaluate(guid, row)
     if not Party.IsFiveMan() or not DB.IsFresh(row) then return end
     -- Both options default OFF. These are numerical-share reminders only.
     local result = Rate.Evaluate(row)
-    if result.status ~= "ok" or result.rolls < NW.RULE.alertMinRolls then return end
+    if result.status ~= "ok" or result.rolls < RL.RULE.alertMinRolls then return end
     if result.band == "yellow" then
         localAlert(guid, row, result, false)
     elseif result.band == "red" then
@@ -87,7 +87,7 @@ end
 
 local function onReady(guid, row, status)
     if status ~= "READY" or not row then return end
-    if NW.IsSecret(guid) or type(guid) ~= "string" then return end
+    if RL.IsSecret(guid) or type(guid) ~= "string" then return end
     if not alertPending[guid] then return end
     alertPending[guid] = nil
     if not Party.IsFiveMan() then return end
@@ -104,7 +104,7 @@ local function currentMembers()
         -- slot is rejected before any name / GUID / class read.
         local identity = Stats.UnitIdentity(unit)
         if identity and identity.isPlayer and not identity.isSelf
-            and not NW.IsSecret(identity.guid) then
+            and not RL.IsSecret(identity.guid) then
             members[identity.guid] = unit
         end
     end
@@ -152,9 +152,9 @@ end
 function Party.ScanAll(force)
     local requested, ready = Scan.ScanParty(force and true or false)
     if requested + ready == 0 then
-        NW.Print(NW.L("SETTINGS_SCAN_NONE"))
+        RL.Print(RL.L("SETTINGS_SCAN_NONE"))
     else
-        NW.Print(NW.L("SETTINGS_SCAN_STARTED", requested + ready))
+        RL.Print(RL.L("SETTINGS_SCAN_STARTED", requested + ready))
     end
     return requested, ready
 end
@@ -167,7 +167,7 @@ local function retryPending()
         for i = 1, 4 do
             local unit = "party" .. i
             local identity = Stats.UnitIdentity(unit)
-            if identity and not NW.IsSecret(identity.guid)
+            if identity and not RL.IsSecret(identity.guid)
                 and identity.guid == guid then
                 found = unit
                 break

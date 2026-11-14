@@ -1,24 +1,24 @@
--- NinjaWatcher maintained baseline. No dungeon-based exemption or pass estimate.
-local ADDON, NW = ...
-NW.NAME = ADDON
-NW.VERSION = "0.4.0"
-NW.RULE_VERSION = "share-v1"
-NW.BETA = false
-NW.STAT = { need = 1044, greed = 1043, dungeons = 932 }
+-- RollLedger maintained baseline. No dungeon-based exemption or pass estimate.
+local ADDON, RL = ...
+RL.NAME = ADDON
+RL.VERSION = "0.4.1"
+RL.RULE_VERSION = "share-v1"
+RL.BETA = false
+RL.STAT = { need = 1044, greed = 1043, dungeons = 932 }
 -- Optional descriptive bands, NOT validated behavioural/risk thresholds.
-NW.BASE_RULE = {
+RL.BASE_RULE = {
     darkGreenBelow = 0.15, greenBelow = 0.35, yellowBelow = 0.55,
     sampleBelowRolls = 20, alertMinRolls = 30,
 }
-NW.RULE = {}
-for k, v in pairs(NW.BASE_RULE) do NW.RULE[k] = v end
-NW.SCAN = { debounce = 0.30, floor = 1.5, hoverTimeout = 2.5, manualTimeout = 15, farTTL = 3 }
-NW.COLORS = {
+RL.RULE = {}
+for k, v in pairs(RL.BASE_RULE) do RL.RULE[k] = v end
+RL.SCAN = { debounce = 0.30, floor = 1.5, hoverTimeout = 2.5, manualTimeout = 15, farTTL = 3 }
+RL.COLORS = {
     darkgreen = { 0.10, 0.72, 0.24 }, green = { 0.25, 0.95, 0.35 },
     yellow = { 1, 0.82, 0 }, red = { 1, 0.25, 0.25 },
     gray = { 0.62, 0.62, 0.62 }, white = { 1, 1, 1 }, pink = { 245/255, 140/255, 186/255 },
 }
-NW.DEFAULTS = {
+RL.DEFAULTS = {
     language = "auto",
     tooltip = true, selfTooltip = true, tooltipBand = true,
     showBands = false, localAlert = false, partyAlert = false,

@@ -1,13 +1,13 @@
--- NinjaWatcher - 掷骰统计参考
+-- RollLedger - 掷骰统计参考
 -- Stats.lua: read the three public counters and resolve unit identity.
 --
 -- Only N/G/E are read. Empty/dash values are unreported, never zero.
 -- String separators are intentionally conservative until verified in-client.
 
-local ADDON, NW = ...
+local ADDON, RL = ...
 
 local Stats = {}
-NW.Stats = Stats
+RL.Stats = Stats
 
 local DASH = "\226\128\148" -- em dash
 
@@ -17,7 +17,7 @@ local function isSecret(value)
     local ok, secret = pcall(issecretvalue, value)
     return not ok or (secret and true or false)
 end
-NW.IsSecret = isSecret
+RL.IsSecret = isSecret
 
 local function trim(text)
     return (text:gsub("^%s+", ""):gsub("%s+$", ""))
@@ -96,14 +96,14 @@ function Stats.ReadRow(getter)
         quality = {},
         source = "scan",
     }
-    row.need, row.quality.need = readField(getter, NW.STAT.need)
-    row.greed, row.quality.greed = readField(getter, NW.STAT.greed)
-    row.entries, row.quality.entries = readField(getter, NW.STAT.dungeons)
+    row.need, row.quality.need = readField(getter, RL.STAT.need)
+    row.greed, row.quality.greed = readField(getter, RL.STAT.greed)
+    row.entries, row.quality.entries = readField(getter, RL.STAT.dungeons)
     return row
 end
 
 local function usableQuality(quality, value)
-    return NW.Rate.IsCount(value) and (quality == nil or quality == "readable")
+    return RL.Rate.IsCount(value) and (quality == nil or quality == "readable")
 end
 
 -- N/G suffice for a share. E is independently optional.

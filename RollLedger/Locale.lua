@@ -1,8 +1,8 @@
 -- Shared i18n service. Locale files only register dictionaries; no UI writes.
 -- Selection is resolved after SavedVariables load, before constructing frames.
-local ADDON, NW = ...
+local ADDON, RL = ...
 local I18n = { dictionaries={}, active="enUS" }
-NW.I18n = I18n
+RL.I18n = I18n
 local function safeString(value)
     if type(value) ~= "string" then return nil end
     if type(issecretvalue) == "function" then
@@ -29,22 +29,22 @@ local function clientLanguage()
     return "enUS"
 end
 function I18n.Init()
-    local selected = preference(NW.DB.Get("language")) or "auto"
-    NW.DB.Set("language",selected)
+    local selected = preference(RL.DB.Get("language")) or "auto"
+    RL.DB.Set("language",selected)
     I18n.active = selected == "auto" and clientLanguage() or selected
-    NW.strings = I18n.dictionaries[I18n.active] or I18n.dictionaries.enUS or {}
+    RL.strings = I18n.dictionaries[I18n.active] or I18n.dictionaries.enUS or {}
 end
 function I18n.Current() return I18n.active end
-function I18n.Preference() return preference(NW.DB.Get("language")) or "auto" end
+function I18n.Preference() return preference(RL.DB.Get("language")) or "auto" end
 function I18n.Name(locale)
-    return ({ auto=NW.L("LANGUAGE_AUTO"), zhCN="简体中文", enUS="English" })[locale] or "English"
+    return ({ auto=RL.L("LANGUAGE_AUTO"), zhCN="简体中文", enUS="English" })[locale] or "English"
 end
 function I18n.Set(value)
     local selected = preference(value)
     if not selected then return false end
     -- Persist now, apply on /reload so static frames and dynamic messages
     -- never end up in different languages in the same UI session.
-    NW.DB.Set("language",selected)
+    RL.DB.Set("language",selected)
     return true
 end
 function I18n.Next()
@@ -54,7 +54,7 @@ function I18n.Next()
         if v==current then I18n.Set(order[i % #order+1]) return I18n.Preference() end
     end
 end
-function NW.L(key,...)
+function RL.L(key,...)
     local english = I18n.dictionaries.enUS or {}
     local current = I18n.dictionaries[I18n.active] or english
     local text = current[key] or english[key] or key

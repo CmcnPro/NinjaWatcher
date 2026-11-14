@@ -1,4 +1,4 @@
--- NinjaWatcher - 掷骰统计参考
+-- RollLedger - 掷骰统计参考
 -- Scan.lua: the only file that talks to the achievement comparison API.
 --
 -- Sequence for another player:
@@ -11,12 +11,12 @@
 -- scan is a small queue. The addon never calls NotifyInspect or
 -- InspectAchievements and never registers a restricted event.
 
-local ADDON, NW = ...
+local ADDON, RL = ...
 
 local Scan = {}
-NW.Scan = Scan
+RL.Scan = Scan
 
-local Stats, DB = NW.Stats, NW.DB
+local Stats, DB = RL.Stats, RL.DB
 
 local state = "IDLE"
 local pending = nil
@@ -40,7 +40,7 @@ local function now()
 end
 
 local function secret(value)
-    return NW.IsSecret(value)
+    return RL.IsSecret(value)
 end
 
 function Scan.State()
@@ -103,7 +103,7 @@ end
 -- combat and do not touch the protected comparison APIs.
 local function inCombat()
     if type(InCombatLockdown) ~= "function" then return false end
-    local ok, locked = NW.Stats.SafeCall(InCombatLockdown)
+    local ok, locked = RL.Stats.SafeCall(InCombatLockdown)
     return (not ok) or (locked and true) or false
 end
 
@@ -315,7 +315,7 @@ local function fire(entry)
     frame:RegisterEvent("INSPECT_ACHIEVEMENT_READY")
     local ok, result = comparisonCall(SetAchievementComparisonUnit, entry.unit)
     if not ok or secret(result) or result == false then
-        farUntil[entry.guid] = now() + NW.SCAN.farTTL
+        farUntil[entry.guid] = now() + RL.SCAN.farTTL
         if inflight == entry then finish(nil, "FAR") end
         return
     end
@@ -330,7 +330,7 @@ function Scan.Tick()
     end
 
     if state == "INFLIGHT" then
-        if inflight and current - inflight.started > (inflight.manual and NW.SCAN.manualTimeout or NW.SCAN.hoverTimeout) then
+        if inflight and current - inflight.started > (inflight.manual and RL.SCAN.manualTimeout or RL.SCAN.hoverTimeout) then
             finish(nil, "TIMEOUT")
         else
             return
@@ -346,10 +346,10 @@ function Scan.Tick()
         pending.at = current
     end
 
-    if current - pending.at < NW.SCAN.debounce then
+    if current - pending.at < RL.SCAN.debounce then
         return
     end
-    if lastSet and current - lastSet < NW.SCAN.floor then
+    if lastSet and current - lastSet < RL.SCAN.floor then
         return
     end
 
@@ -396,7 +396,7 @@ frame:SetScript("OnEvent", function(_, event, guid)
     if secret(guid) or type(guid) ~= "string" or guid ~= inflight.guid or not ownsComparison then
         return
     end
-    if now() - inflight.started > (inflight.manual and NW.SCAN.manualTimeout or NW.SCAN.hoverTimeout) then
+    if now() - inflight.started > (inflight.manual and RL.SCAN.manualTimeout or RL.SCAN.hoverTimeout) then
         finish(nil, "TIMEOUT")
         return
     end

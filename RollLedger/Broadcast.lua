@@ -1,4 +1,4 @@
--- NinjaWatcher - 掷骰统计参考
+-- RollLedger - 掷骰统计参考
 -- Broadcast.lua: one-click 小队 / 团队 announcements, no slash command needed.
 --
 -- Zero dependencies: no LibDBIcon, no Ace, no external texture files.
@@ -11,15 +11,15 @@
 --   * The portrait's native click behaviour is untouched. Only entries are
 --     appended to the unit popup menu (see Settings.lua).
 --
--- Every name / guild / verdict text passes through NW.IsSecret before it is
+-- Every name / guild / verdict text passes through RL.IsSecret before it is
 -- displayed, so a protected value can never reach the UI or a chat message.
 
-local ADDON, NW = ...
+local ADDON, RL = ...
 
 local Broadcast = {}
-NW.Broadcast = Broadcast
+RL.Broadcast = Broadcast
 
-local DB, Stats, Share = NW.DB, NW.Stats, NW.Share
+local DB, Stats, Share = RL.DB, RL.Stats, RL.Share
 
 local ROW_HEIGHT = 28
 local PANEL_WIDTH = 520
@@ -39,26 +39,26 @@ local MODE_ALIASES = {
 }
 
 local function safeText(value, fallback)
-    if NW.IsSecret(value) or type(value) ~= "string" or value == "" then
+    if RL.IsSecret(value) or type(value) ~= "string" or value == "" then
         return fallback
     end
     return value
 end
 
 local function normalizeMode(value)
-    if NW.IsSecret(value) or type(value) ~= "string" then return nil end
+    if RL.IsSecret(value) or type(value) ~= "string" then return nil end
     local key = value:lower():match("^%s*(.-)%s*$")
     if MODES[key] then return key end
     return MODE_ALIASES[value:match("^%s*(.-)%s*$")] or MODE_ALIASES[key]
 end
 
 local function identityOf(unit)
-    if NW.IsSecret(unit) or type(unit) ~= "string" then return nil end
+    if RL.IsSecret(unit) or type(unit) ~= "string" then return nil end
     -- Skip NPCs / pets / objects before reading a name, GUID or class.
     if Stats.PlayerGate(unit) ~= "player" then return nil end
     local ok, identity = pcall(Stats.UnitIdentity, unit)
     if not ok or type(identity) ~= "table" then return nil end
-    if NW.IsSecret(identity.guid) or type(identity.guid) ~= "string" then return nil end
+    if RL.IsSecret(identity.guid) or type(identity.guid) ~= "string" then return nil end
     return identity
 end
 
@@ -69,13 +69,13 @@ local function collect()
     local function add(unit, tagKey)
         local identity = identityOf(unit)
         if not identity or not identity.guid then return end
-        if NW.IsSecret(identity.guid) or seen[identity.guid] then return end
+        if RL.IsSecret(identity.guid) or seen[identity.guid] then return end
         seen[identity.guid] = true
         list[#list + 1] = {
             guid = identity.guid,
             unit = unit,
             name = safeText(identity.name, "?"),
-            tag = NW.L(tagKey),
+            tag = RL.L(tagKey),
         }
     end
     add("mouseover", "BROADCAST_TAG_MOUSE")
@@ -103,9 +103,9 @@ local function groupState()
     elseif type(GetNumGroupMembers) == "function" then
         inGroup = (tonumber(GetNumGroupMembers()) or 0) > 0
     end
-    if inRaid then return NW.L("BROADCAST_STATE_RAID") end
-    if inGroup then return NW.L("BROADCAST_STATE_PARTY") end
-    return NW.L("BROADCAST_STATE_SOLO")
+    if inRaid then return RL.L("BROADCAST_STATE_RAID") end
+    if inGroup then return RL.L("BROADCAST_STATE_PARTY") end
+    return RL.L("BROADCAST_STATE_SOLO")
 end
 
 -- ------------------------------------------------------------------ panel UI
@@ -119,11 +119,11 @@ local function showRowTooltip(row, entry)
         GameTooltip:AddLine(entry.name .. " · " .. entry.tag, 1, 1, 1)
         local message = Share.MessageFor(entry.guid)
         if message then
-            GameTooltip:AddLine(NW.L("BROADCAST_PREVIEW", message), 0.85, 0.85, 0.85, true)
+            GameTooltip:AddLine(RL.L("BROADCAST_PREVIEW", message), 0.85, 0.85, 0.85, true)
         else
-            GameTooltip:AddLine(NW.L("BROADCAST_NO_ROW"), 0.85, 0.85, 0.85, true)
+            GameTooltip:AddLine(RL.L("BROADCAST_NO_ROW"), 0.85, 0.85, 0.85, true)
         end
-        GameTooltip:AddLine(NW.L("BROADCAST_HINT"), 0.60, 0.60, 0.60, true)
+        GameTooltip:AddLine(RL.L("BROADCAST_HINT"), 0.60, 0.60, 0.60, true)
         GameTooltip:Show()
     end)
     if not ok and type(GameTooltip.Hide) == "function" then
@@ -168,11 +168,11 @@ local function makeRow(index)
     local partyButton = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
     partyButton:SetSize(50, 20)
     partyButton:SetPoint("RIGHT", row, "RIGHT", -56, 0)
-    partyButton:SetText(NW.L("BROADCAST_PARTY_BTN"))
+    partyButton:SetText(RL.L("BROADCAST_PARTY_BTN"))
     local raidButton = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
     raidButton:SetSize(50, 20)
     raidButton:SetPoint("RIGHT", row, "RIGHT", -4, 0)
-    raidButton:SetText(NW.L("BROADCAST_RAID_BTN"))
+    raidButton:SetText(RL.L("BROADCAST_RAID_BTN"))
 
     row.chip = chip
     row.name = name
@@ -227,21 +227,21 @@ local function refreshRows()
     end
     scrollChild:SetHeight(math.max(1, #entries * ROW_HEIGHT))
     emptyText:SetShown(#entries == 0)
-    statusText:SetText(NW.L("BROADCAST_STATUS", groupState(), DB.Count()))
+    statusText:SetText(RL.L("BROADCAST_STATUS", groupState(), DB.Count()))
 end
 
 local function updateIconModeButton()
     if not iconModeButton then return end
     local mode = normalizeMode(DB.Get("iconMode")) or "minimap"
-    iconModeButton:SetText(NW.L("BROADCAST_ICON_MODE",
-        NW.L("BROADCAST_ICON_" .. string.upper(mode))))
+    iconModeButton:SetText(RL.L("BROADCAST_ICON_MODE",
+        RL.L("BROADCAST_ICON_" .. string.upper(mode))))
 end
 
 local function buildPanel()
-    local ok, created = pcall(CreateFrame, "Frame", "NinjaWatcherBroadcastFrame",
+    local ok, created = pcall(CreateFrame, "Frame", "RollLedgerBroadcastFrame",
         UIParent, "BackdropTemplate")
     if not ok or not created then
-        created = CreateFrame("Frame", "NinjaWatcherBroadcastFrame", UIParent)
+        created = CreateFrame("Frame", "RollLedgerBroadcastFrame", UIParent)
     end
     frame = created
     frame:SetSize(PANEL_WIDTH, PANEL_HEIGHT)
@@ -260,20 +260,20 @@ local function buildPanel()
 
     local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -8)
-    title:SetText(NW.L("BROADCAST_TITLE"))
+    title:SetText(RL.L("BROADCAST_TITLE"))
     title:SetTextColor(0.96, 0.55, 0.73)
 
     local close = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     close:SetSize(54, 22)
     close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -8, -8)
-    close:SetText(NW.L("BROADCAST_CLOSE"))
+    close:SetText(RL.L("BROADCAST_CLOSE"))
     close:SetScript("OnClick", function() frame:Hide() end)
 
     local hint = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     hint:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -34)
     hint:SetWidth(PANEL_WIDTH - 20)
     hint:SetJustifyH("LEFT")
-    hint:SetText(NW.L("BROADCAST_HINT"))
+    hint:SetText(RL.L("BROADCAST_HINT"))
     hint:SetTextColor(0.72, 0.72, 0.72)
 
     scroll = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
@@ -288,7 +288,7 @@ local function buildPanel()
     emptyText:SetPoint("TOPLEFT", scroll, "TOPLEFT", 6, -8)
     emptyText:SetWidth(PANEL_WIDTH - 50)
     emptyText:SetJustifyH("LEFT")
-    emptyText:SetText(NW.L("BROADCAST_EMPTY"))
+    emptyText:SetText(RL.L("BROADCAST_EMPTY"))
 
     statusText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     statusText:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 10, 36)
@@ -363,7 +363,7 @@ end
 
 local function buildIcon()
     local parent = Minimap or UIParent
-    icon = CreateFrame("Button", "NinjaWatcherQuickButton", parent)
+    icon = CreateFrame("Button", "RollLedgerQuickButton", parent)
     icon:SetSize(32, 32)
     icon:SetFrameStrata("MEDIUM")
     icon:SetMovable(true)
@@ -380,7 +380,7 @@ local function buildIcon()
     paintTexture(ring, 0.96, 0.55, 0.73, 0.9)
     local label = icon:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     label:SetPoint("CENTER", icon, "CENTER", 0, 0)
-    label:SetText("NW")
+    label:SetText("RL")
     label:SetTextColor(0.06, 0.07, 0.09, 1)
 
     icon:SetScript("OnClick", function(_, button)
@@ -395,8 +395,8 @@ local function buildIcon()
             or type(GameTooltip.SetOwner) ~= "function" then return end
         pcall(function()
             GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-            GameTooltip:AddLine(NW.L("BROADCAST_ICON_TIP"), 1, 1, 1, true)
-            GameTooltip:AddLine(NW.L("RATE_HINT"), 0.78, 0.70, 0.45, true)
+            GameTooltip:AddLine(RL.L("BROADCAST_ICON_TIP"), 1, 1, 1, true)
+            GameTooltip:AddLine(RL.L("RATE_HINT"), 0.78, 0.70, 0.45, true)
             GameTooltip:Show()
         end)
     end)
@@ -428,7 +428,7 @@ function Broadcast.Init()
     buildPanel()
     buildIcon()
     applyIconMode(normalizeMode(DB.Get("iconMode")) or "minimap")
-    NW.Scan.OnReady(function()
+    RL.Scan.OnReady(function()
         if frame and frame:IsShown() then Broadcast.Refresh() end
     end)
 
@@ -467,14 +467,14 @@ end
 function Broadcast.SetIconMode(value)
     local mode = normalizeMode(value)
     if not mode then
-        NW.Print(NW.L("BROADCAST_ICON_SET", NW.L("BROADCAST_ICON_MINIMAP")))
+        RL.Print(RL.L("BROADCAST_ICON_SET", RL.L("BROADCAST_ICON_MINIMAP")))
         return
     end
     DB.Set("iconMode", mode)
     applyIconMode(mode)
     if frame then updateIconModeButton() end
-    NW.Print(NW.L("BROADCAST_ICON_SET",
-        NW.L("BROADCAST_ICON_" .. string.upper(mode))))
+    RL.Print(RL.L("BROADCAST_ICON_SET",
+        RL.L("BROADCAST_ICON_" .. string.upper(mode))))
 end
 
 function Broadcast.IconMode()

@@ -1,8 +1,8 @@
 -- Manual, neutral sharing. Default local; public sends require explicit consent.
-local ADDON, NW = ...
+local ADDON, RL = ...
 local Share = {}
-NW.Share = Share
-local DB, Stats, Rate = NW.DB, NW.Stats, NW.Rate
+RL.Share = Share
+local DB, Stats, Rate = RL.DB, RL.Stats, RL.Rate
 local TARGETS = {
     self={label="SHARE_TARGET_SELF"}, edit={label="SHARE_TARGET_EDIT"},
     say={label="SHARE_TARGET_SAY",channel="SAY"}, party={label="SHARE_TARGET_PARTY",channel="PARTY"},
@@ -20,13 +20,13 @@ local function shorten(s,n)
     return s:sub(1,cut-1)
 end
 local function clean(s,n)
-    if NW.IsSecret(s) or type(s)~="string" then return nil end
+    if RL.IsSecret(s) or type(s)~="string" then return nil end
     s=s:gsub("[%c|]"," "):match("^%s*(.-)%s*$")
     if s=="" then return nil end
     return shorten(s,n or 64)
 end
 local function normalize(s)
-    if NW.IsSecret(s) or type(s)~="string" then return "self" end
+    if RL.IsSecret(s) or type(s)~="string" then return "self" end
     s=s:lower():match("^%s*(.-)%s*$")
     return TARGETS[s] and s or ALIASES[s] or "self"
 end
@@ -37,22 +37,22 @@ local function build(guid,row)
     if realm then name=name.."-"..realm end
     -- Never truncate away the caveat. Drop optional details first.
     local summary=Rate.Summary(Rate.Evaluate(row))
-    local prefix=NW.L("SHARE_PREFIX",name,summary)
-    local note=DB.IsFresh(row) and NW.L("DATA_RECENT") or NW.L("DATA_STALE")
-    local suffix=NW.L("SHARE_SUFFIX",note,DB.TimeText(row),NW.L("SHARE_CAVEAT"))
-    local message=prefix..NW.L("SHARE_COUNTS",Rate.CountText(row,"need"),Rate.CountText(row,"greed"))..suffix
+    local prefix=RL.L("SHARE_PREFIX",name,summary)
+    local note=DB.IsFresh(row) and RL.L("DATA_RECENT") or RL.L("DATA_STALE")
+    local suffix=RL.L("SHARE_SUFFIX",note,DB.TimeText(row),RL.L("SHARE_CAVEAT"))
+    local message=prefix..RL.L("SHARE_COUNTS",Rate.CountText(row,"need"),Rate.CountText(row,"greed"))..suffix
     if #message>255 then message=prefix..suffix end
-    if #message>255 then message=NW.L("SHARE_PREFIX",shorten(name,36),summary)..suffix end
+    if #message>255 then message=RL.L("SHARE_PREFIX",shorten(name,36),summary)..suffix end
     if #message>255 then return nil end
     return message
 end
 function Share.Target() return normalize(DB.Get("shareTarget")) end
-function Share.TargetLabel() return NW.L(TARGETS[Share.Target()].label) end
+function Share.TargetLabel() return RL.L(TARGETS[Share.Target()].label) end
 function Share.SetTarget(v)
     local key=normalize(v)
     DB.Set("shareTarget",key)
     pending=nil
-    NW.Print(NW.L("SHARE_TARGET_SET",Share.TargetLabel()))
+    RL.Print(RL.L("SHARE_TARGET_SET",Share.TargetLabel()))
     return key
 end
 function Share.NextTarget()
@@ -73,11 +73,11 @@ function Share.MessageFor(guid)
     return build(guid,DB.GetPlayer(guid))
 end
 function Share.Send(guid,unit,target,whisperTo,explicit)
-    if NW.IsSecret(guid) or type(guid)~="string" then return false end
+    if RL.IsSecret(guid) or type(guid)~="string" then return false end
     local row=DB.GetPlayer(guid)
     if not row then
-        NW.Print(NW.L("SHARE_NO_DATA"))
-        if unit then pcall(NW.Scan.Request,unit,{manual=true}) end
+        RL.Print(RL.L("SHARE_NO_DATA"))
+        if unit then pcall(RL.Scan.Request,unit,{manual=true}) end
         return false
     end
     local key=target~=nil and normalize(target) or Share.Target()
@@ -86,39 +86,39 @@ function Share.Send(guid,unit,target,whisperTo,explicit)
         local id=guid.."|"..key
         if not pending or pending.id~=id or time()-pending.at>=30 then
             pending={id=id,at=time()}
-            NW.Print(NW.L("SHARE_CONFIRM",NW.L(TARGETS[key].label)))
+            RL.Print(RL.L("SHARE_CONFIRM",RL.L(TARGETS[key].label)))
             return false
         end
         pending=nil
     end
     if (key=="party" or key=="raid") and not Share.CanBroadcast(key) then
-        NW.Print(NW.L(key=="raid" and "SHARE_NOT_IN_RAID" or "SHARE_NOT_IN_PARTY"))
+        RL.Print(RL.L(key=="raid" and "SHARE_NOT_IN_RAID" or "SHARE_NOT_IN_PARTY"))
         return false
     end
     -- Local output includes full snapshot date and latest scan failure.
     if key=="self" then
-        NW.Print((build(guid,row) or Rate.Summary(Rate.Evaluate(row))).."\n"..Rate.Detail(row).."\n"..DB.DataNote(guid,row))
+        RL.Print((build(guid,row) or Rate.Summary(Rate.Evaluate(row))).."\n"..Rate.Detail(row).."\n"..DB.DataNote(guid,row))
         return true
     end
     local message=build(guid,row)
-    if not message then NW.Print(NW.L("SHARE_BAD_DATA")) return false end
+    if not message then RL.Print(RL.L("SHARE_BAD_DATA")) return false end
     if key=="edit" then
         if type(ChatFrame_OpenChat)=="function" then return pcall(ChatFrame_OpenChat,message) end
         return false
     end
     local recipient=key=="whisper" and clean(whisperTo,100) or nil
-    if key=="whisper" and not recipient then NW.Print(NW.L("SHARE_NO_WHISPER")) return false end
+    if key=="whisper" and not recipient then RL.Print(RL.L("SHARE_NO_WHISPER")) return false end
     if type(SendChatMessage)~="function" then return false end
     local id=guid.."|"..key
-    if lastSend[id] and time()-lastSend[id]<5 then NW.Print(NW.L("SHARE_COOLDOWN")) return false end
+    if lastSend[id] and time()-lastSend[id]<5 then RL.Print(RL.L("SHARE_COOLDOWN")) return false end
     local ok=pcall(SendChatMessage,message,channel,nil,recipient)
-    if ok then lastSend[id]=time() NW.Print(NW.L("SHARE_SENT",NW.L(TARGETS[key].label))) end
+    if ok then lastSend[id]=time() RL.Print(RL.L("SHARE_SENT",RL.L(TARGETS[key].label))) end
     return ok
 end
 function Share.SendCurrent(target,whisperTo,explicit)
     local guid,unit
-    if NW.Tooltip then
-        local identity,cached=NW.Tooltip.Current()
+    if RL.Tooltip then
+        local identity,cached=RL.Tooltip.Current()
         guid=cached or (identity and identity.guid)
     end
     if not guid then
@@ -135,6 +135,6 @@ function Share.Broadcast(guid,key,unit)
 end
 function Share.Verdict(row,guid)
     local result=Rate.Evaluate(row or {})
-    local note=row and not DB.IsFresh(row) and " · "..NW.L("DATA_STALE_SHORT") or ""
+    local note=row and not DB.IsFresh(row) and " · "..RL.L("DATA_STALE_SHORT") or ""
     return Rate.Summary(result)..note,Rate.VerdictColor(result)
 end

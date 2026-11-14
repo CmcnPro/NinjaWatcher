@@ -1,4 +1,4 @@
--- NinjaWatcher - 掷骰统计参考
+-- RollLedger - 掷骰统计参考
 -- ChatTag.lua (0.2.9): put the locally recorded Need rate IN FRONT of the
 -- sender's name in chat, e.g. (85%)某某某 whispers: ...
 --
@@ -15,7 +15,7 @@
 --   called, so other chat addons in the chain keep working.
 --
 -- WHAT THIS DOES NOT DO
---   * No scan on its own (unless /nw tag refresh is enabled), no chat send,
+--   * No scan on its own (unless /rledger tag refresh is enabled), no chat send,
 --     no network, no unit frame hook, no SetItemRef hook.
 --   * No local row -> no tag by default. Small counts show their share;
 --     unknown values never become zero. Stale snapshots carry an explicit tag.
@@ -23,16 +23,16 @@
 --     queried for them. Only players already in the local catalog get a
 --     number, which is exactly why this feature is useful: it recognises
 --     people you scanned earlier regardless of where they are now.
---   * Every string operation is behind NW.IsSecret + pcall. Comparing or
+--   * Every string operation is behind RL.IsSecret + pcall. Comparing or
 --     concatenating a protected string raises on this client (the original
 --     Tooltip.lua:37 bug); on any doubt the message is passed through intact.
 
-local ADDON, NW = ...
+local ADDON, RL = ...
 
 local ChatTag = {}
-NW.ChatTag = ChatTag
+RL.ChatTag = ChatTag
 
-local DB, Rate, Scan = NW.DB, NW.Rate, NW.Scan
+local DB, Rate, Scan = RL.DB, RL.Rate, RL.Scan
 
 local originals = {}        -- [chatFrame] = its original AddMessage
 local guidByName = {}       -- normalised name -> { guid, at }
@@ -60,7 +60,7 @@ local MODE_LABEL = {
 
 function ChatTag.Mode()
     local ok, value = pcall(DB.Get, "chatTagMode")
-    if ok and not NW.IsSecret(value)
+    if ok and not RL.IsSecret(value)
         and (value == "whisper" or value == "all" or value == "off") then
         return value
     end
@@ -68,24 +68,24 @@ function ChatTag.Mode()
 end
 
 function ChatTag.ModeLabel()
-    return NW.L(MODE_LABEL[ChatTag.Mode()] or "TAG_MODE_WHISPER")
+    return RL.L(MODE_LABEL[ChatTag.Mode()] or "TAG_MODE_WHISPER")
 end
 
 function ChatTag.SetMode(value)
-    if NW.IsSecret(value) or type(value) ~= "string" then return false end
+    if RL.IsSecret(value) or type(value) ~= "string" then return false end
     local ok, key = pcall(function()
         return value:lower():match("^%s*(.-)%s*$")
     end)
     if not ok then return false end
     key = MODE_ALIASES[key] or key
     if key ~= "whisper" and key ~= "all" and key ~= "off" then
-        NW.Print(NW.L("TAG_BAD"), NW.COLORS.yellow)
+        RL.Print(RL.L("TAG_BAD"), RL.COLORS.yellow)
         return false
     end
     DB.Set("chatTagMode", key)
-    NW.Print(NW.L("TAG_SET", ChatTag.ModeLabel()), NW.COLORS.green)
-    if NW.Settings and type(NW.Settings.RefreshLinkUI) == "function" then
-        pcall(NW.Settings.RefreshLinkUI)
+    RL.Print(RL.L("TAG_SET", ChatTag.ModeLabel()), RL.COLORS.green)
+    if RL.Settings and type(RL.Settings.RefreshLinkUI) == "function" then
+        pcall(RL.Settings.RefreshLinkUI)
     end
     return true
 end
@@ -98,7 +98,7 @@ function ChatTag.NextMode()
         if key == current then nextKey = order[(i % #order) + 1] end
     end
     DB.Set("chatTagMode", nextKey)
-    NW.Print(NW.L("TAG_SET", NW.L(MODE_LABEL[nextKey])))
+    RL.Print(RL.L("TAG_SET", RL.L(MODE_LABEL[nextKey])))
     return nextKey
 end
 
@@ -109,7 +109,7 @@ end
 
 -- Preserve realm-qualified names. Ambiguous bare-name lookups fail closed.
 local function normalise(name)
-    if type(name) ~= "string" or NW.IsSecret(name) then return nil end
+    if type(name) ~= "string" or RL.IsSecret(name) then return nil end
     local ok, value = pcall(function()
         return (name:gsub("%s+", "")):lower()
     end)
@@ -135,10 +135,10 @@ end
 -- Small counts remain visible; unknown counts never become zero.
 local function tagFor(row)
     local result = Rate.Evaluate(row)
-    if result.status ~= "ok" then return NW.L("TAG_GRAY"), NW.COLORS.gray end
+    if result.status ~= "ok" then return RL.L("TAG_GRAY"), RL.COLORS.gray end
     local pct = math.floor(result.ratio * 100 + 0.5)
-    local suffix = result.sampleLevel == "small" and NW.L("TAG_SMALL_SUFFIX") or ""
-    if not DB.IsFresh(row) then suffix = suffix .. NW.L("TAG_STALE_SUFFIX") end
+    local suffix = result.sampleLevel == "small" and RL.L("TAG_SMALL_SUFFIX") or ""
+    if not DB.IsFresh(row) then suffix = suffix .. RL.L("TAG_STALE_SUFFIX") end
     return string.format("(%d%%%s)", pct, suffix), Rate.Color(result.band)
 end
 
@@ -153,14 +153,14 @@ end
 -- Returns a rewritten message, or nil to pass the original through untouched.
 -- The link payload "data" is copied verbatim; only [shown] is prefixed.
 local function decorate(message)
-    if type(message) ~= "string" or NW.IsSecret(message) then return nil end
+    if type(message) ~= "string" or RL.IsSecret(message) then return nil end
     local mode = ChatTag.Mode()
     if mode == "off" then return nil end
 
     local ok, out = pcall(function()
         local startAt, endAt, data, shown =
             message:find("|Hplayer:([^|]*)|h%[(.-)%]|h")
-        if not startAt or NW.IsSecret(data) or NW.IsSecret(shown) then
+        if not startAt or RL.IsSecret(data) or RL.IsSecret(shown) then
             return nil
         end
         if #data > 200 or #shown > 80 then return nil end
@@ -176,7 +176,7 @@ local function decorate(message)
         if row then
             tag, rgb = tagFor(row)
         elseif ChatTag.ShowUnknown() then
-            tag, rgb = NW.L("TAG_UNKNOWN"), NW.COLORS.gray
+            tag, rgb = RL.L("TAG_UNKNOWN"), RL.COLORS.gray
         else
             return nil
         end
@@ -193,12 +193,12 @@ end
 -- calls exactly this function, so there is one code path.
 function ChatTag.NoteWhisper(sender, guid)
     pcall(function()
-        if type(sender) == "string" and not NW.IsSecret(sender) then
+        if type(sender) == "string" and not RL.IsSecret(sender) then
             activeName = sender
             activeUntil = GetTime() + WINDOW
         end
-        if type(guid) ~= "string" or NW.IsSecret(guid) or guid == ""
-            or type(sender) ~= "string" or NW.IsSecret(sender) then
+        if type(guid) ~= "string" or RL.IsSecret(guid) or guid == ""
+            or type(sender) ~= "string" or RL.IsSecret(sender) then
             return
         end
         local key = normalise(sender)
@@ -211,7 +211,7 @@ function ChatTag.NoteWhisper(sender, guid)
         if DB.Get("chatTagRefresh") == true and not DB.GetPlayer(guid)
             and type(UnitTokenFromGUID) == "function" then
             local tokenOk, unit = pcall(UnitTokenFromGUID, guid)
-            if tokenOk and type(unit) == "string" and not NW.IsSecret(unit) then
+            if tokenOk and type(unit) == "string" and not RL.IsSecret(unit) then
                 pcall(Scan.Request, unit, { manual = true, priority = true })
             end
         end

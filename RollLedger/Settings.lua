@@ -1,8 +1,8 @@
 -- Maintained UI: paged snapshots, independent data quality and optional bands.
-local ADDON, NW = ...
+local ADDON, RL = ...
 local Settings = {}
-NW.Settings = Settings
-local DB, Rate, Scan, Stats = NW.DB, NW.Rate, NW.Scan, NW.Stats
+RL.Settings = Settings
+local DB, Rate, Scan, Stats = RL.DB, RL.Rate, RL.Scan, RL.Stats
 local frame, listPage, optionsPage, counter, detailText, languageButton
 local rows, checks, edits = {}, {}, {}
 local pageNumber, pageSize, sortMode = 1, 20, "recent"
@@ -52,15 +52,15 @@ local function makeRow(i)
         GameTooltip:AddLine(DB.DataNote(e.guid,e.row),0.7,0.7,0.7,true)
         local report=DB.Reported(e.guid)
         if report then
-            GameTooltip:AddLine(NW.L("PERSONAL_NOTE_WARNING"),1,0.82,0,true)
+            GameTooltip:AddLine(RL.L("PERSONAL_NOTE_WARNING"),1,0.82,0,true)
         end
-        GameTooltip:AddLine(NW.L("RATE_HINT"),0.65,0.65,0.65,true)
+        GameTooltip:AddLine(RL.L("RATE_HINT"),0.65,0.65,0.65,true)
         GameTooltip:Show()
     end)
     row:SetScript("OnLeave",function() GameTooltip:Hide() end)
     row:SetScript("OnClick",function(self)
         local ok,shift=Stats.SafeCall(IsShiftKeyDown)
-        if ok and shift and self.entry then NW.Share.Send(self.entry.guid) end
+        if ok and shift and self.entry then RL.Share.Send(self.entry.guid) end
     end)
     return row
 end
@@ -83,21 +83,21 @@ function Settings.RefreshPlayers()
             if e.row.realm then name=name.."-"..e.row.realm end
             local prefix=e.guid==highlightGUID and "> " or ""
             if DB.Reported(e.guid) then prefix=prefix.."★ " end
-            local stale=DB.IsFresh(e.row) and "" or " · "..NW.L("DATA_STALE_SHORT")
+            local stale=DB.IsFresh(e.row) and "" or " · "..RL.L("DATA_STALE_SHORT")
             row.text:SetText(prefix..name.." · "..Rate.Summary(result)..stale)
             local c=Rate.VerdictColor(result)
             row.text:SetTextColor(c[1],c[2],c[3])
             row:Show()
         else row:Hide() end
     end
-    counter:SetText(NW.L("SETTINGS_COUNT",#items,pageNumber,pages,pageSize))
+    counter:SetText(RL.L("SETTINGS_COUNT",#items,pageNumber,pages,pageSize))
 end
 function Settings.RefreshOptions()
     for k,cb in pairs(checks) do cb:SetChecked(DB.Get(k)==true) end
     local values={Rate.RuleValues()}
     for i,box in ipairs(edits) do box:SetText(tostring(values[i])) end
-    if detailText then detailText:SetText(NW.L("SETTINGS_MODES",NW.Share.TargetLabel(),NW.Badge.ModeLabel(),NW.ChatTag.ModeLabel())) end
-    if languageButton then languageButton:SetText(NW.L("LANGUAGE_BUTTON",NW.I18n.Name(NW.I18n.Preference()))) end
+    if detailText then detailText:SetText(RL.L("SETTINGS_MODES",RL.Share.TargetLabel(),RL.Badge.ModeLabel(),RL.ChatTag.ModeLabel())) end
+    if languageButton then languageButton:SetText(RL.L("LANGUAGE_BUTTON",RL.I18n.Name(RL.I18n.Preference()))) end
 end
 function Settings.RefreshRuleUI() Settings.RefreshOptions() Settings.RefreshPlayers() end
 function Settings.RefreshLinkUI() Settings.RefreshOptions() end
@@ -112,10 +112,10 @@ function Settings.Open()
     if Settings.category and api and type(api.OpenToCategory)=="function" then
         local ok=pcall(function() api.OpenToCategory(Settings.category:GetID()) end)
         if not ok then pcall(api.OpenToCategory,Settings.category.ID) end
-    else NW.Print(NW.L("CHAT_NO_SETTINGS")) end
+    else RL.Print(RL.L("CHAT_NO_SETTINGS")) end
 end
 function Settings.ShowPlayers(guid)
-    highlightGUID=not NW.IsSecret(guid) and type(guid)=="string" and guid or nil
+    highlightGUID=not RL.IsSecret(guid) and type(guid)=="string" and guid or nil
     Settings.Open()
     if listPage then listPage:Show() optionsPage:Hide() Settings.RefreshPlayers() end
 end
@@ -124,10 +124,10 @@ local function snapshot(row)
     local a,b,c=Rate.RuleValues()
     return { at=time(), collectedAt=row and row.at, need=row and row.need, greed=row and row.greed,
         entries=row and row.entries, rolls=r.rolls, ratio=r.ratio, band=r.band,
-        ruleVersion=NW.RULE_VERSION, tier1=a,tier2=b,tier3=c, kind="personal" }
+        ruleVersion=RL.RULE_VERSION, tier1=a,tier2=b,tier3=c, kind="personal" }
 end
 function Settings.ToggleReport(guid,unit)
-    if NW.IsSecret(guid) or type(guid)~="string" then return end
+    if RL.IsSecret(guid) or type(guid)~="string" then return end
     if DB.Reported(guid) then DB.ClearReport(guid)
     else
         if unit then
@@ -137,7 +137,7 @@ function Settings.ToggleReport(guid,unit)
         DB.SetReport(guid,snapshot(DB.GetPlayer(guid)))
         if not DB.GetPlayer(guid) and unit then Scan.Request(unit,{manual=true}) end
     end
-    NW.Print(NW.L("PERSONAL_NOTE_WARNING"))
+    RL.Print(RL.L("PERSONAL_NOTE_WARNING"))
     Settings.RefreshPlayers()
 end
 local function checkbox(parent,key,text,y)
@@ -147,9 +147,9 @@ local function checkbox(parent,key,text,y)
     label(parent,text,34,y-5,555)
     cb:SetScript("OnClick",function(self)
         DB.Set(key,self:GetChecked()==true)
-        if key=="tooltipBand" then NW.Tooltip.RefreshDisplay() end
+        if key=="tooltipBand" then RL.Tooltip.RefreshDisplay() end
         Settings.RefreshPlayers()
-        if NW.Badge then pcall(NW.Badge.Refresh) end
+        if RL.Badge then pcall(RL.Badge.Refresh) end
     end)
     checks[key]=cb
 end
@@ -157,33 +157,33 @@ function Settings.Init()
     if frame then return end
     local api=_G.Settings
     if type(api)~="table" or type(api.RegisterCanvasLayoutCategory)~="function" then return end
-    frame=CreateFrame("Frame","NinjaWatcherSettingsFrame",UIParent)
+    frame=CreateFrame("Frame","RollLedgerSettingsFrame",UIParent)
     frame:SetSize(640,700)
     frame:Hide()
-    label(frame,NW.L("SETTINGS_TITLE",NW.VERSION),8,-8,600)
-    label(frame,NW.L("RATE_HINT"),8,-32,600)
+    label(frame,RL.L("SETTINGS_TITLE",RL.VERSION),8,-8,600)
+    label(frame,RL.L("RATE_HINT"),8,-32,600)
     listPage=CreateFrame("Frame",nil,frame)
     listPage:SetPoint("TOPLEFT",frame,"TOPLEFT",8,-100)
     listPage:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-8,8)
     optionsPage=CreateFrame("Frame",nil,frame)
     optionsPage:SetAllPoints(listPage)
-    button(frame,NW.L("SETTINGS_PLAYERS"),8,-68,110,function() listPage:Show() optionsPage:Hide() Settings.RefreshPlayers() end)
-    button(frame,NW.L("SETTINGS_OPTIONS"),126,-68,130,function() listPage:Hide() optionsPage:Show() Settings.RefreshOptions() end)
-    label(listPage,NW.L("SETTINGS_PLAYERS_HINT"),4,-4,600)
-    button(listPage,NW.L("SETTINGS_SCAN"),4,-30,110,function() NW.Party.ScanAll(true) end)
-    button(listPage,NW.L("SETTINGS_SORT"),122,-30,140,function()
+    button(frame,RL.L("SETTINGS_PLAYERS"),8,-68,110,function() listPage:Show() optionsPage:Hide() Settings.RefreshPlayers() end)
+    button(frame,RL.L("SETTINGS_OPTIONS"),126,-68,130,function() listPage:Hide() optionsPage:Show() Settings.RefreshOptions() end)
+    label(listPage,RL.L("SETTINGS_PLAYERS_HINT"),4,-4,600)
+    button(listPage,RL.L("SETTINGS_SCAN"),4,-30,110,function() RL.Party.ScanAll(true) end)
+    button(listPage,RL.L("SETTINGS_SORT"),122,-30,140,function()
         sortMode=sortMode=="recent" and "rate" or "recent"
         highlightGUID=nil pageNumber=1 Settings.RefreshPlayers()
     end)
     local clearButton
-    clearButton=button(listPage,NW.L("SETTINGS_CLEAR"),270,-30,140,function()
+    clearButton=button(listPage,RL.L("SETTINGS_CLEAR"),270,-30,140,function()
         if time()>clearUntil then
-            clearUntil=time()+5 clearButton:SetText(NW.L("SETTINGS_CLEAR_CONFIRM")) return
+            clearUntil=time()+5 clearButton:SetText(RL.L("SETTINGS_CLEAR_CONFIRM")) return
         end
-        DB.Clear() clearUntil=0 clearButton:SetText(NW.L("SETTINGS_CLEAR")) Settings.RefreshPlayers()
+        DB.Clear() clearUntil=0 clearButton:SetText(RL.L("SETTINGS_CLEAR")) Settings.RefreshPlayers()
     end)
-    button(listPage,NW.L("SETTINGS_PREVIOUS"),4,-560,90,function() highlightGUID=nil pageNumber=pageNumber-1 Settings.RefreshPlayers() end)
-    button(listPage,NW.L("SETTINGS_NEXT"),102,-560,90,function() highlightGUID=nil pageNumber=pageNumber+1 Settings.RefreshPlayers() end)
+    button(listPage,RL.L("SETTINGS_PREVIOUS"),4,-560,90,function() highlightGUID=nil pageNumber=pageNumber-1 Settings.RefreshPlayers() end)
+    button(listPage,RL.L("SETTINGS_NEXT"),102,-560,90,function() highlightGUID=nil pageNumber=pageNumber+1 Settings.RefreshPlayers() end)
     counter=label(listPage,"",4,-70,600)
     local opts={
         {"tooltip","OPTION_TOOLTIP"},{"selfTooltip","OPTION_SELF"},
@@ -191,8 +191,8 @@ function Settings.Init()
         {"showBands","OPTION_BANDS"},{"localAlert","OPTION_LOCAL_ALERT"},
         {"partyAlert","OPTION_PARTY_ALERT"},{"badgeShowUnknown","OPTION_UNKNOWN"},
     }
-    for i,o in ipairs(opts) do checkbox(optionsPage,o[1],NW.L(o[2]),-(i-1)*28) end
-    label(optionsPage,NW.L("OPTIONS_BOUNDARIES"),8,-204,590)
+    for i,o in ipairs(opts) do checkbox(optionsPage,o[1],RL.L(o[2]),-(i-1)*28) end
+    label(optionsPage,RL.L("OPTIONS_BOUNDARIES"),8,-204,590)
     local values={Rate.RuleValues()}
     for i=1,3 do
         local box=CreateFrame("EditBox",nil,optionsPage,"InputBoxTemplate")
@@ -201,31 +201,31 @@ function Settings.Init()
         box:SetScript("OnEscapePressed",function(self) self:ClearFocus() end)
         edits[i]=box
     end
-    button(optionsPage,NW.L("OPTIONS_APPLY"),230,-232,110,function()
-        NW.ApplyRule(tonumber(edits[1]:GetText()),tonumber(edits[2]:GetText()),tonumber(edits[3]:GetText()))
+    button(optionsPage,RL.L("OPTIONS_APPLY"),230,-232,110,function()
+        RL.ApplyRule(tonumber(edits[1]:GetText()),tonumber(edits[2]:GetText()),tonumber(edits[3]:GetText()))
     end)
-    button(optionsPage,NW.L("OPTIONS_SHARE"),8,-276,160,function() NW.Share.NextTarget() Settings.RefreshOptions() end)
-    button(optionsPage,NW.L("OPTIONS_BADGE"),176,-276,160,function() NW.Badge.NextMode() Settings.RefreshOptions() end)
-    button(optionsPage,NW.L("OPTIONS_CHAT"),344,-276,160,function() NW.ChatTag.NextMode() Settings.RefreshOptions() end)
+    button(optionsPage,RL.L("OPTIONS_SHARE"),8,-276,160,function() RL.Share.NextTarget() Settings.RefreshOptions() end)
+    button(optionsPage,RL.L("OPTIONS_BADGE"),176,-276,160,function() RL.Badge.NextMode() Settings.RefreshOptions() end)
+    button(optionsPage,RL.L("OPTIONS_CHAT"),344,-276,160,function() RL.ChatTag.NextMode() Settings.RefreshOptions() end)
     detailText=label(optionsPage,"",8,-314,590)
-    languageButton=button(optionsPage,NW.L("LANGUAGE_BUTTON",NW.I18n.Name(NW.I18n.Preference())),8,-354,235,function()
-        NW.SetLanguage(NW.I18n.Next())
+    languageButton=button(optionsPage,RL.L("LANGUAGE_BUTTON",RL.I18n.Name(RL.I18n.Preference())),8,-354,235,function()
+        RL.SetLanguage(RL.I18n.Next())
     end)
-    label(optionsPage,NW.L("HELP_LANGUAGE"),252,-354,350)
-    label(optionsPage,NW.L("OPTIONS_EXPLANATION"),8,-404,590)
+    label(optionsPage,RL.L("HELP_LANGUAGE"),252,-354,350)
+    label(optionsPage,RL.L("OPTIONS_EXPLANATION"),8,-404,590)
     local function resetOptions()
         DB.ResetOptions()
-        local d=NW.DEFAULTS NW.ApplyRule(d.tier1,d.tier2,d.tier3)
-        NW.Broadcast.SetIconMode(d.iconMode)
-        NW.Print(NW.L("LANGUAGE_SAVED",NW.I18n.Name("auto")))
+        local d=RL.DEFAULTS RL.ApplyRule(d.tier1,d.tier2,d.tier3)
+        RL.Broadcast.SetIconMode(d.iconMode)
+        RL.Print(RL.L("LANGUAGE_SAVED",RL.I18n.Name("auto")))
         Settings.Refresh()
     end
-    button(optionsPage,NW.L("OPTIONS_RESET"),8,-550,160,resetOptions)
+    button(optionsPage,RL.L("OPTIONS_RESET"),8,-550,160,resetOptions)
     frame:SetScript("OnShow",Settings.Refresh)
     frame.OnRefresh=Settings.Refresh
     frame.OnCommit=function() end
     frame.OnDefault=resetOptions
-    local category=api.RegisterCanvasLayoutCategory(frame,NW.L("SETTINGS_CATEGORY"))
+    local category=api.RegisterCanvasLayoutCategory(frame,RL.L("SETTINGS_CATEGORY"))
     api.RegisterAddOnCategory(category)
     Settings.category=category
     listPage:Show() optionsPage:Hide()
@@ -241,17 +241,17 @@ function Settings.InitUnitMenu()
         pcall(Menu.ModifyMenu,tag,function(_,description,context)
             if type(description)~="table" or added[description] then return end
             local unit=type(context)=="table" and context.unit or nil
-            if NW.IsSecret(unit) or type(unit)~="string" then return end
+            if RL.IsSecret(unit) or type(unit)~="string" then return end
             local identity=Stats.UnitIdentity(unit)
             if not identity or identity.isSelf then return end
             added[description]=true
             local guid=identity.guid
             if description.CreateDivider then description:CreateDivider() end
-            description:CreateButton(NW.L("MENU_DETAIL"),function()
+            description:CreateButton(RL.L("MENU_DETAIL"),function()
                 Settings.ShowPlayers(guid) Scan.Request(unit,{manual=true,force=true})
             end)
-            description:CreateButton(NW.L("MENU_SHARE"),function() NW.Share.Send(guid,unit) end)
-            description:CreateButton(NW.L(DB.Reported(guid) and "MENU_UNMARK" or "MENU_MARK"),function() Settings.ToggleReport(guid,unit) end)
+            description:CreateButton(RL.L("MENU_SHARE"),function() RL.Share.Send(guid,unit) end)
+            description:CreateButton(RL.L(DB.Reported(guid) and "MENU_UNMARK" or "MENU_MARK"),function() Settings.ToggleReport(guid,unit) end)
         end)
     end
 end

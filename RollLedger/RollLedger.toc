@@ -1,11 +1,11 @@
 ## Interface: 16001
-## Title: NinjaWatcher - Roll Statistics
-## Title-zhCN: NinjaWatcher - 掷骰统计参考
+## Title: RollLedger - Roll Statistics
+## Title-zhCN: RollLedger - 掷骰统计参考
 ## Notes: Local Need/Greed roll statistics and optional sharing. Statistics are not proof of loot abuse.
 ## Notes-zhCN: 需求/贪婪累计统计与可选分享。仅供参考，不认定恶意需求。
-## Author: NinjaWatcher contributors (see ../AUTHORS.md)
-## Version: 0.4.0
-## SavedVariables: NinjaWatcherDB
+## Author: RollLedger contributors (see ../AUTHORS.md)
+## Version: 0.4.1
+## SavedVariables: RollLedgerDB
 ## AllowLoadGameType: camelot
 ## DefaultState: enabled
 

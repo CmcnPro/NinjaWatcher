@@ -1,4 +1,4 @@
--- NinjaWatcher - 掷骰统计参考
+-- RollLedger - 掷骰统计参考
 -- Badge.lua (0.2.8): a small need-rate tag next to unit health bars.
 --
 -- Design constraints, all deliberate:
@@ -22,12 +22,12 @@
 --   on             - always
 --   off            - never
 
-local ADDON, NW = ...
+local ADDON, RL = ...
 
 local Badge = {}
-NW.Badge = Badge
+RL.Badge = Badge
 
-local DB, Stats, Rate = NW.DB, NW.Stats, NW.Rate
+local DB, Stats, Rate = RL.DB, RL.Stats, RL.Rate
 
 local INTERVAL = 0.35
 local accumulated = 0
@@ -69,7 +69,7 @@ local MODE_ALIASES = {
 
 function Badge.Mode()
     local ok, value = pcall(DB.Get, "badgeMode")
-    if ok and not NW.IsSecret(value)
+    if ok and not RL.IsSecret(value)
         and (value == "auto" or value == "on" or value == "off") then
         return value
     end
@@ -77,20 +77,20 @@ function Badge.Mode()
 end
 
 function Badge.ModeLabel()
-    return NW.L("BADGE_MODE_" .. string.upper(Badge.Mode()))
+    return RL.L("BADGE_MODE_" .. string.upper(Badge.Mode()))
 end
 
 function Badge.SetMode(value)
     local key = value
-    if NW.IsSecret(key) or type(key) ~= "string" then return false end
+    if RL.IsSecret(key) or type(key) ~= "string" then return false end
     key = key:lower():match("^%s*(.-)%s*$")
     key = MODE_ALIASES[key] or key
     if key ~= "auto" and key ~= "on" and key ~= "off" then
-        NW.Print(NW.L("BADGE_BAD"), NW.COLORS.yellow)
+        RL.Print(RL.L("BADGE_BAD"), RL.COLORS.yellow)
         return false
     end
     DB.Set("badgeMode", key)
-    NW.Print(NW.L("BADGE_SET", Badge.ModeLabel()), NW.COLORS.green)
+    RL.Print(RL.L("BADGE_SET", Badge.ModeLabel()), RL.COLORS.green)
     pcall(Badge.Refresh)
     return true
 end
@@ -104,7 +104,7 @@ function Badge.NextMode()
     end
     DB.Set("badgeMode", nextKey)
     pcall(Badge.Refresh)
-    NW.Print(NW.L("BADGE_SET", NW.L("BADGE_MODE_" .. string.upper(nextKey))))
+    RL.Print(RL.L("BADGE_SET", RL.L("BADGE_MODE_" .. string.upper(nextKey))))
     return nextKey
 end
 
@@ -150,8 +150,8 @@ local function anchorOf(def)
                 return candidate:GetLeft(), candidate:GetBottom(), candidate:GetWidth()
             end)
             if ok and type(left) == "number" and type(bottom) == "number"
-                and not NW.IsSecret(left) and not NW.IsSecret(bottom)
-                and not NW.IsSecret(width) then
+                and not RL.IsSecret(left) and not RL.IsSecret(bottom)
+                and not RL.IsSecret(width) then
                 return left, bottom, type(width) == "number" and width or 0, false
             end
         end
@@ -160,19 +160,19 @@ local function anchorOf(def)
 end
 
 local function guidFor(unit)
-    if NW.IsSecret(unit) or type(unit) ~= "string" then return nil end
+    if RL.IsSecret(unit) or type(unit) ~= "string" then return nil end
     if Stats.PlayerGate(unit) ~= "player" then return nil end
     local ok, identity = pcall(Stats.UnitIdentity, unit)
     if not ok or type(identity) ~= "table" then return nil end
     local guid = identity.guid
-    if NW.IsSecret(guid) or type(guid) ~= "string" then return nil end
+    if RL.IsSecret(guid) or type(guid) ~= "string" then return nil end
     return guid
 end
 
 -- Always show readable N/R, including small counts, with an age indicator.
 local function verdictOf(row)
     local result = Rate.Evaluate(row)
-    local suffix = DB.IsFresh(row) and "" or " · " .. NW.L("DATA_STALE_SHORT")
+    local suffix = DB.IsFresh(row) and "" or " · " .. RL.L("DATA_STALE_SHORT")
     return Rate.Summary(result) .. suffix, Rate.VerdictColor(result)
 end
 
@@ -223,7 +223,7 @@ end
 
 local function shortName(row)
     local name = row and row.name
-    if NW.IsSecret(name) or type(name) ~= "string" then return nil end
+    if RL.IsSecret(name) or type(name) ~= "string" then return nil end
     return name:sub(1, 12)
 end
 
@@ -242,7 +242,7 @@ function Badge.Refresh()
             local text, color = verdictOf(row)
             paint(label, def, text, color, shortName(row))
         elseif guid and showUnknown then
-            paint(label, def, NW.L("BADGE_NO_ROW"), NW.COLORS.gray, nil)
+            paint(label, def, RL.L("BADGE_NO_ROW"), RL.COLORS.gray, nil)
         else
             hide(label)
         end

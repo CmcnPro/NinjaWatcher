@@ -1,39 +1,39 @@
--- NinjaWatcher: append owned, single-column rows without touching native rows.
+-- RollLedger: append owned, single-column rows without touching native rows.
 -- FontStrings are pooled by GameTooltip: object identity / an old index is
 -- NOT proof of ownership after the native tooltip (or another addon) rebuilds.
-local ADDON, NW = ...
+local ADDON, RL = ...
 local Tooltip = {}
-NW.Tooltip = Tooltip
-local Stats, Scan, Rate, DB = NW.Stats, NW.Scan, NW.Rate, NW.DB
+RL.Tooltip = Tooltip
+local Stats, Scan, Rate, DB = RL.Stats, RL.Scan, RL.Rate, RL.DB
 local shown, drawing, installed = nil, false, false
 
 local function safeText(fs)
     if not fs or type(fs.GetText) ~= "function" then return nil end
     local ok, text = pcall(fs.GetText, fs)
-    if not ok or NW.IsSecret(text) or type(text) ~= "string" then return nil end
+    if not ok or RL.IsSecret(text) or type(text) ~= "string" then return nil end
     return text
 end
 local function equal(a, b)
-    if NW.IsSecret(a) or NW.IsSecret(b) then return false end
+    if RL.IsSecret(a) or RL.IsSecret(b) then return false end
     local ok, same = pcall(function() return a == b end)
     return ok and same == true
 end
 local function lineCount(tooltip)
     if not tooltip or type(tooltip.NumLines) ~= "function" then return nil end
     local ok, count = pcall(tooltip.NumLines, tooltip)
-    if not ok or NW.IsSecret(count) or type(count) ~= "number" then return nil end
+    if not ok or RL.IsSecret(count) or type(count) ~= "number" then return nil end
     return count
 end
 local function left(index) return _G["GameTooltipTextLeft" .. index] end
 local function liveUnit(unit)
-    if NW.IsSecret(unit) or type(unit) ~= "string" or unit == "" then return nil end
+    if RL.IsSecret(unit) or type(unit) ~= "string" or unit == "" then return nil end
     local ok, exists = Stats.SafeCall(UnitExists, unit)
     return ok and exists and unit or nil
 end
 local function tooltipUnit(tooltip)
     if not tooltip or type(tooltip.GetUnit) ~= "function" then return nil end
     local ok, a, b = pcall(tooltip.GetUnit, tooltip)
-    if not ok or NW.IsSecret(a) or NW.IsSecret(b) then return nil, true end
+    if not ok or RL.IsSecret(a) or RL.IsSecret(b) then return nil, true end
     return liveUnit(b) or liveUnit(a)
 end
 local function currentIdentity(tooltip)
@@ -58,17 +58,17 @@ local STATUS_KEYS = {
     TIMEOUT="TOOLTIP_STATUS_TIMEOUT", NODATA="TOOLTIP_STATUS_NODATA",
 }
 local function content(row, guid, status)
-    local lines, color = {}, NW.COLORS.gray
+    local lines, color = {}, RL.COLORS.gray
     if row then
         local result = Rate.Evaluate(row)
         color = Rate.VerdictColor(result)
-        lines[1] = NW.L("TOOLTIP_SUMMARY",NW.L("TOOLTIP_LABEL"),Rate.Summary(result,DB.Get("tooltipBand")))
+        lines[1] = RL.L("TOOLTIP_SUMMARY",RL.L("TOOLTIP_LABEL"),Rate.Summary(result,DB.Get("tooltipBand")))
         -- Keep mouseover compact; full context remains in the player catalog.
-        lines[2] = NW.L("TOOLTIP_COUNTS",
+        lines[2] = RL.L("TOOLTIP_COUNTS",
             Rate.CountText(row, "need"), Rate.CountText(row, "greed"),
-            result.rolls and tostring(result.rolls) or NW.L("VALUE_UNKNOWN"))
+            result.rolls and tostring(result.rolls) or RL.L("VALUE_UNKNOWN"))
     else
-        lines[1] = NW.L("TOOLTIP_SUMMARY",NW.L("TOOLTIP_LABEL"),NW.L(STATUS_KEYS[status] or "TOOLTIP_UNKNOWN"))
+        lines[1] = RL.L("TOOLTIP_SUMMARY",RL.L("TOOLTIP_LABEL"),RL.L(STATUS_KEYS[status] or "TOOLTIP_UNKNOWN"))
     end
     return lines, color
 end
@@ -101,7 +101,7 @@ local function paint(tooltip, row, identity, status, refreshOnly)
         end
         for i=1,math.max(#lines,#record.rows) do
             local text = lines[i] or " "
-            local c = i==1 and color or NW.COLORS.gray
+            local c = i==1 and color or RL.COLORS.gray
             local owned = record.rows[i]
             if owned then
                 owned.fs:SetText(text)
@@ -136,7 +136,7 @@ function Tooltip.RefreshDisplay()
     paint(tooltip,shown.row,identity,shown.status,true)
 end
 local function refresh(guid,row,status)
-    if drawing or not shown or NW.IsSecret(guid) or not equal(shown.guid,guid) then return end
+    if drawing or not shown or RL.IsSecret(guid) or not equal(shown.guid,guid) then return end
     local tooltip = shown.tooltip
     local ok, visible = Stats.SafeCall(tooltip.IsShown,tooltip)
     if not ok or not visible then return end

@@ -1,5 +1,17 @@
 # Changelog / 更新记录
 
+## 0.4.1 — RollLedger rename & operator warning / 更名与运营商警告
+
+- Use `/rledger` and `/rollledger`, not `/rl`, to avoid conflicting with the commonly used reload shortcut.
+- 使用 `/rledger` 和 `/rollledger`，不注册 `/rl`，避免与常用重载快捷命令冲突。
+
+- Add a prominent Chinese-server suspension warning in both READMEs, with the user-provided customer-support screenshot. Reports about Blizzard-operated servers are identified as user reports, not official approval.
+- Rename the maintained addon from NinjaWatcher to RollLedger: folder, TOC, saved variable (`RollLedgerDB`), frame names, internal namespace, localized labels, and commands (`/rledger`, `/rollledger`). No old command alias or automatic legacy-addon loading is retained.
+- Document optional manual migration from `NinjaWatcher.lua` / `NinjaWatcherDB`; keep upstream attribution and historical release notes. A rename does not guarantee protection from detection or suspension.
+- 中英文 README 增加中国服务器封号风险警告及用户提供的客服邮件截图；暴雪自营服务器情况明确标注为用户反馈，不代表官方许可。
+- 维护版由 NinjaWatcher 更名为 RollLedger，统一目录、TOC、存档字段（`RollLedgerDB`）、框体、内部命名空间、中英文文案及命令（`/rledger`、`/rollledger`），不保留旧命令别名，也不自动加载旧插件。
+- 说明旧存档的可选手动迁移方式，保留上游来源与历史更新记录；更名不保证避免检测或封号。
+
 ## 0.4.0 — English & Simplified Chinese / 中英双语
 
 - Add a default-on setting to show or hide only the tooltip's share-band description (e.g. Moderate share), keeping the percentage, colors, counts, and other views unchanged.

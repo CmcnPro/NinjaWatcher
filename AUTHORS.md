@@ -1,6 +1,6 @@
 # Acknowledgements and provenance / 致谢与来源
 
-NinjaWatcher is independently maintained from community releases shared on NGA. Thank you to the original author, subsequent maintainers, and community members for their ideas, fixes, and feedback.
+RollLedger (formerly NinjaWatcher) is independently maintained from community releases shared on NGA. Thank you to the original author, subsequent maintainers, and community members for their ideas, fixes, and feedback.
 
 本项目基于NGA社区发布的NinjaWatcher原始版本及后续修改版独立维护。感谢原作者、后续维护者和社区玩家提供的思路、代码、修复及反馈。
 
@@ -13,9 +13,9 @@ The supplied packages were labeled `0.2.1`, `0.2.1-fixed`, and `0.2.9`. The orig
 
 收到的上游包标注为 `0.2.1`、`0.2.1-fixed` 和 `0.2.9`，原始插件元数据中的作者为“匿名”。目前尚未独立核实所有贡献者身份及完整贡献历史，不凭空补写署名。
 
-Keeping the NinjaWatcher name preserves addon and saved-data compatibility. It does not imply endorsement by upstream authors.
+This maintained version has been renamed to RollLedger, including its addon folder and saved-variable namespace. Existing NinjaWatcher data requires manual migration as documented in the READMEs. Upstream attribution is retained; the rename does not imply endorsement by upstream authors or approval by any server operator, and does not guarantee protection from detection or account suspension.
 
-沿用NinjaWatcher名称是为了兼容插件及存档，不表示得到上游作者背书。
+本维护版已更名为 RollLedger，同时更新插件目录与存档命名空间；已有 NinjaWatcher 数据需按 README 手动迁移。保留上游署名与来源，更名不表示得到上游作者背书或任何服务器运营商许可，也不保证避免检测或封号。
 
 ## Licensing status / 授权状态
 
