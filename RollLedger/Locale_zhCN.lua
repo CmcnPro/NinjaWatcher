@@ -60,6 +60,7 @@ RL.I18n.Register("zhCN", {
     OPTION_TOOLTIP_BAND="鼠标提示中显示占比分档描述（如“占比中等”）",
     OPTION_BANDS="启用占比颜色及描述（非风险等级，默认关闭）",
     OPTION_LOCAL_ALERT="启用小队本地数值提醒（默认关闭，累计掷骰至少30次）",
+    OPTION_BADGE="显示目标／焦点／小队框体统计标签（独立开关，默认关闭）",
     OPTION_PARTY_ALERT="启用5人小队自动公开数值提醒（默认关闭）", OPTION_UNKNOWN="框体标签显示未记录玩家",
     OPTIONS_BOUNDARIES="可选占比分档界值（百分比，非经验证的行为界线）",
     OPTIONS_APPLY="应用界值", OPTIONS_SHARE="切换分享目标", OPTIONS_BADGE="切换框体标签", OPTIONS_CHAT="切换聊天标签",

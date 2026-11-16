@@ -1,5 +1,14 @@
 # Changelog / 更新记录
 
+## 0.4.2 — Opt-in unit labels & official announcement / 框体标签独立开关与官方公告
+
+- Add an independent unit-frame label switch, off by default for both new and existing saves. Toggle target, focus, and party labels immediately without changing mouseover tooltips; retain the auto/on/off mode commands.
+- Replace the customer-support screenshot in both READMEs with the Chinese-server operator's official prohibition announcement. State the enforcement year as 2026 based on user confirmation; the screenshot lists only month and day.
+- Describe the original distribution thread as deleted from the NGA community, without attributing the deletion or inferring the author's intentions. Upstream licensing remains unconfirmed.
+- 新增目标／焦点／小队框体统计标签独立开关，新安装及已有存档升级后默认关闭；勾选或取消立即生效，不影响鼠标悬停提示，保留 auto/on/off 模式命令。
+- 中英文 README 改用中国服务器运营商官方禁止公告及截图；依据用户确认注明处罚年份为 2026 年，截图本身仅列月日。
+- 原始来源改为“原作者在 NGA 社区分发的帖子被删除”，不推断删帖方或作者意向；上游授权状态仍待确认。
+
 ## 0.4.1 — RollLedger rename & operator warning / 更名与运营商警告
 
 - Use `/rledger` and `/rollledger`, not `/rl`, to avoid conflicting with the commonly used reload shortcut.

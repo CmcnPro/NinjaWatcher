@@ -4,7 +4,7 @@
 ## Notes: Local Need/Greed roll statistics and optional sharing. Statistics are not proof of loot abuse.
 ## Notes-zhCN: 需求/贪婪累计统计与可选分享。仅供参考，不认定恶意需求。
 ## Author: RollLedger contributors (see ../AUTHORS.md)
-## Version: 0.4.1
+## Version: 0.4.2
 ## SavedVariables: RollLedgerDB
 ## AllowLoadGameType: camelot
 ## DefaultState: enabled

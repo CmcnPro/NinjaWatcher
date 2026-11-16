@@ -147,9 +147,13 @@ local function checkbox(parent,key,text,y)
     label(parent,text,34,y-5,555)
     cb:SetScript("OnClick",function(self)
         DB.Set(key,self:GetChecked()==true)
+        if key=="badgeEnabled" and self:GetChecked()==true and RL.Badge.Mode()=="off" then
+            DB.Set("badgeMode","auto")
+        end
         if key=="tooltipBand" then RL.Tooltip.RefreshDisplay() end
         Settings.RefreshPlayers()
         if RL.Badge then pcall(RL.Badge.Refresh) end
+        Settings.RefreshOptions()
     end)
     checks[key]=cb
 end
@@ -189,30 +193,31 @@ function Settings.Init()
         {"tooltip","OPTION_TOOLTIP"},{"selfTooltip","OPTION_SELF"},
         {"tooltipBand","OPTION_TOOLTIP_BAND"},
         {"showBands","OPTION_BANDS"},{"localAlert","OPTION_LOCAL_ALERT"},
-        {"partyAlert","OPTION_PARTY_ALERT"},{"badgeShowUnknown","OPTION_UNKNOWN"},
+        {"partyAlert","OPTION_PARTY_ALERT"},{"badgeEnabled","OPTION_BADGE"},
+        {"badgeShowUnknown","OPTION_UNKNOWN"},
     }
     for i,o in ipairs(opts) do checkbox(optionsPage,o[1],RL.L(o[2]),-(i-1)*28) end
-    label(optionsPage,RL.L("OPTIONS_BOUNDARIES"),8,-204,590)
+    label(optionsPage,RL.L("OPTIONS_BOUNDARIES"),8,-232,590)
     local values={Rate.RuleValues()}
     for i=1,3 do
         local box=CreateFrame("EditBox",nil,optionsPage,"InputBoxTemplate")
-        box:SetSize(56,24) box:SetPoint("TOPLEFT",optionsPage,"TOPLEFT",12+(i-1)*70,-232)
+        box:SetSize(56,24) box:SetPoint("TOPLEFT",optionsPage,"TOPLEFT",12+(i-1)*70,-260)
         box:SetAutoFocus(false) box:SetMaxLetters(2) box:SetText(tostring(values[i]))
         box:SetScript("OnEscapePressed",function(self) self:ClearFocus() end)
         edits[i]=box
     end
-    button(optionsPage,RL.L("OPTIONS_APPLY"),230,-232,110,function()
+    button(optionsPage,RL.L("OPTIONS_APPLY"),230,-260,110,function()
         RL.ApplyRule(tonumber(edits[1]:GetText()),tonumber(edits[2]:GetText()),tonumber(edits[3]:GetText()))
     end)
-    button(optionsPage,RL.L("OPTIONS_SHARE"),8,-276,160,function() RL.Share.NextTarget() Settings.RefreshOptions() end)
-    button(optionsPage,RL.L("OPTIONS_BADGE"),176,-276,160,function() RL.Badge.NextMode() Settings.RefreshOptions() end)
-    button(optionsPage,RL.L("OPTIONS_CHAT"),344,-276,160,function() RL.ChatTag.NextMode() Settings.RefreshOptions() end)
-    detailText=label(optionsPage,"",8,-314,590)
-    languageButton=button(optionsPage,RL.L("LANGUAGE_BUTTON",RL.I18n.Name(RL.I18n.Preference())),8,-354,235,function()
+    button(optionsPage,RL.L("OPTIONS_SHARE"),8,-304,160,function() RL.Share.NextTarget() Settings.RefreshOptions() end)
+    button(optionsPage,RL.L("OPTIONS_BADGE"),176,-304,160,function() RL.Badge.NextMode() Settings.RefreshOptions() end)
+    button(optionsPage,RL.L("OPTIONS_CHAT"),344,-304,160,function() RL.ChatTag.NextMode() Settings.RefreshOptions() end)
+    detailText=label(optionsPage,"",8,-342,590)
+    languageButton=button(optionsPage,RL.L("LANGUAGE_BUTTON",RL.I18n.Name(RL.I18n.Preference())),8,-382,235,function()
         RL.SetLanguage(RL.I18n.Next())
     end)
-    label(optionsPage,RL.L("HELP_LANGUAGE"),252,-354,350)
-    label(optionsPage,RL.L("OPTIONS_EXPLANATION"),8,-404,590)
+    label(optionsPage,RL.L("HELP_LANGUAGE"),252,-382,350)
+    label(optionsPage,RL.L("OPTIONS_EXPLANATION"),8,-432,590)
     local function resetOptions()
         DB.ResetOptions()
         local d=RL.DEFAULTS RL.ApplyRule(d.tier1,d.tier2,d.tier3)

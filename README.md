@@ -10,19 +10,19 @@ A World of Warcraft addon that displays cumulative Need/Greed roll statistics, w
 
 ## Chinese-server enforcement risk and maintainer position
 
-**The Chinese-server operator has issued an account-suspension warning targeting this addon. Disclosing this risk does not endorse that response, establish a worldwide Blizzard ban, or establish that the addon technically constitutes cheating. Renaming does not guarantee protection from detection or penalties.**
+**The Chinese-server operator has published an official announcement prohibiting NinjaWatcher. Disclosing this risk does not endorse that response, establish a worldwide Blizzard ban, or establish that the addon technically constitutes cheating. Renaming does not guarantee protection from detection or penalties.**
 
-### Reported notice and regional differences
+### Official announcement and regional differences
 
-The user-provided in-game customer-support notice below explicitly names `NinjaWatcher` as a prohibited addon. It states that, starting at **00:00 on November 15**, accounts that continue using it will receive a **three-day suspension**, with progressively longer suspensions for repeated violations. The screenshot does not show a year; consult the operator's latest announcements and support notices. We are quoting the penalties described in the notice, not claiming to have independently verified individual suspension cases.
+The Chinese-server operations team's official announcement prohibiting `NinjaWatcher` (screenshot supplied by the user below) requires players to uninstall it and stop using its related functions **by the end of November 14, 2026**. Starting at **00:00 on November 15, 2026**, continued use is subject to a **three-day suspension for a first violation**, with progressively longer suspensions for repeated violations, counted together with other prohibited-addon violations. The year is stated as 2026 based on the user's confirmation; the screenshot itself lists only the month and day. Consult the operator's latest announcements for enforcement details. We are quoting the announced penalties, not claiming to have independently verified individual suspension cases.
 
-The notice also includes third-party collection, display, distribution, and sale of player information and activity records, as well as in-game player assessments, within its stated prohibitions. This describes **the Chinese-server operator's enforcement position**; it does not establish that this addon performs every listed activity, nor is it independent evidence of its technical nature.
+The announcement also includes third-party collection, display, distribution, and sale of player information and activity records, as well as in-game player assessments, within its stated prohibitions. It also calls on developers and platforms to stop developing, distributing, and providing the addon and its related prohibited functionality, and to remove related addon listings. This describes **the Chinese-server operator's enforcement position**; it does not establish that this addon performs every listed activity, nor is it independent evidence of its technical nature.
 
-- **Chinese servers:** A notice explicitly targeting this addon has been received, with the account penalties described above. Users should be aware of this practical enforcement risk.
+- **Chinese servers:** An official prohibition explicitly naming NinjaWatcher has been announced, with the account penalties described above. Users should be aware of this practical enforcement risk.
 - **Blizzard-operated servers:** According to user reports received so far, no related prohibition notice targeting this addon has been received. The Chinese operator's restriction must not be presented as a worldwide Blizzard ban; absence of a notice is also not official approval or a safety guarantee. Regional rules and client compatibility must be checked separately.
 - **Detection method:** Users report that detection involves the addon name, but we cannot independently confirm that it relies on names alone. Renaming, keeping output local, or disabling sharing does not guarantee protection from penalties.
 
-![User-provided Chinese-server customer-support notice about prohibited addons](assets/notices/china-operator-warning.png)
+![Chinese-server operations team's official announcement prohibiting NinjaWatcher (supplied by the user)](assets/notices/china-operator-announcement.jpg)
 
 ### Data sources and maintainer position
 
@@ -34,13 +34,13 @@ The maintainer's position is that, for this kind of public-statistics aggregatio
 
 ### Original release thread and code licensing
 
-According to information provided by the user, the original author's release thread was removed by the Chinese operator, **not voluntarily withdrawn by the author**. Its removal must not be taken as evidence that the author abandoned maintenance, revoked permission, or endorsed the operator's response. Thread removal and code licensing are separate issues: upstream permissions remain unconfirmed, as explained under Licensing status below and in [AUTHORS.md](AUTHORS.md).
+According to information provided by the user, the original author's distribution thread on the NGA community has been deleted. Its deletion alone does not establish the reason for removal, the author's maintenance intentions, or code licensing status. Thread deletion and code licensing are separate issues: upstream permissions remain unconfirmed, as explained under Licensing status below and in [AUTHORS.md](AUTHORS.md).
 
 ## Features
 
 - **Compact mouseover tooltip:** See a player’s Need share and cumulative Need / Greed / total counts in two lines.
 - **Local player records:** Browse previously scanned players, sort by last scan or Need share, and view collection times and scan status.
-- **Optional unit-frame labels:** Display locally recorded statistics beside target, focus, and party frames.
+- **Optional unit-frame labels:** An independent switch, off by default, displays locally recorded statistics beside target, focus, and party frames when enabled. Mouseover tooltips are unaffected.
 - **Optional chat-name labels:** Recognize previously recorded players without changing the original clickable player link.
 - **Manual sharing:** Print statistics locally, prepare text in the chat input, or explicitly share them with a party, raid, guild, or whisper recipient.
 - **Optional numerical alerts:** Enable local or party alerts if desired. Automatic alerts are off by default.
@@ -126,7 +126,7 @@ Shift-clicking a catalog row uses your selected sharing destination. Sending thr
 - Optional color bands: **off**.
 - Automatic local and public party alerts: **off**.
 - Chat-name labels: **off**.
-- Unit-frame labels: automatic mode, normally shown in instances and outdoors and hidden in resting areas.
+- Unit-frame labels: **independent switch off by default**, including when upgrading existing saves. Enable **Show target / focus / party unit labels** under **Display & alerts** for immediate display. Once enabled, automatic mode normally shows labels in instances and outdoors and hides them in resting areas.
 
 ## Commands
 
@@ -146,7 +146,7 @@ Command keywords stay the same in both languages. Interface labels, help, remind
 | `/rledger target self` | Set the default sharing destination: `self`, `edit`, `say`, `party`, `raid`, `guild`, or `whisper` |
 | `/rledger broadcast` | Open the statistics-sharing panel |
 | `/rledger icon minimap` / `float` / `hide` | Choose the quick-button mode |
-| `/rledger badge auto` / `on` / `off` | Choose unit-frame label mode |
+| `/rledger badge auto` / `on` / `off` | `auto`/`on` enable unit labels and select a mode; `off` disables the independent switch |
 | `/rledger tag off` / `whisper` / `all` | Choose chat-name label mode |
 | `/rledger bands on` / `/rledger bands off` | Enable / disable optional share colors |
 | `/rledger tier 15 35 55` | Customize descriptive percentage boundaries |

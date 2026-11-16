@@ -60,6 +60,7 @@ RL.I18n.Register("enUS", {
     OPTION_TOOLTIP_BAND="Show share-band text in tooltips (e.g. Moderate share)",
     OPTION_BANDS="Optional share colors (not risk levels; off by default)",
     OPTION_LOCAL_ALERT="Local party reminders (off by default; at least 30 rolls)",
+    OPTION_BADGE="Show target / focus / party unit labels (off by default)",
     OPTION_PARTY_ALERT="Public alerts in a full party (off by default)", OPTION_UNKNOWN="Label players with no local record",
     OPTIONS_BOUNDARIES="Optional percentage boundaries (not validated behavior thresholds)",
     OPTIONS_APPLY="Apply", OPTIONS_SHARE="Sharing target", OPTIONS_BADGE="Unit labels", OPTIONS_CHAT="Chat labels",

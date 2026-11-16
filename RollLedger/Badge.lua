@@ -16,8 +16,9 @@
 --   * Every unit token, GUID and geometry read is guarded against secret
 --     values. A protected value simply hides that tag for one refresh.
 --
--- Modes (account-wide SavedVariables):
---   auto (default) - ON inside instances and outdoors, OFF in cities where
+-- Independent badgeEnabled switch defaults to false, including existing saves.
+-- Modes (account-wide SavedVariables; used only while enabled):
+--   auto (default mode) - ON inside instances and outdoors, OFF in cities where
 --                    hundreds of nameplates would make the tags unreadable
 --   on             - always
 --   off            - never
@@ -77,6 +78,7 @@ function Badge.Mode()
 end
 
 function Badge.ModeLabel()
+    if DB.Get("badgeEnabled") ~= true then return RL.L("BADGE_MODE_OFF") end
     return RL.L("BADGE_MODE_" .. string.upper(Badge.Mode()))
 end
 
@@ -90,6 +92,7 @@ function Badge.SetMode(value)
         return false
     end
     DB.Set("badgeMode", key)
+    DB.Set("badgeEnabled", key ~= "off")
     RL.Print(RL.L("BADGE_SET", Badge.ModeLabel()), RL.COLORS.green)
     pcall(Badge.Refresh)
     return true
@@ -131,6 +134,7 @@ local function inCity()
 end
 
 function Badge.ShouldShow()
+    if DB.Get("badgeEnabled") ~= true then return false end
     local mode = Badge.Mode()
     if mode == "off" then return false end
     if mode == "on" then return true end

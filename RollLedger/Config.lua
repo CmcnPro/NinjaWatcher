@@ -1,7 +1,7 @@
 -- RollLedger maintained baseline. No dungeon-based exemption or pass estimate.
 local ADDON, RL = ...
 RL.NAME = ADDON
-RL.VERSION = "0.4.1"
+RL.VERSION = "0.4.2"
 RL.RULE_VERSION = "share-v1"
 RL.BETA = false
 RL.STAT = { need = 1044, greed = 1043, dungeons = 932 }
@@ -25,6 +25,6 @@ RL.DEFAULTS = {
     cacheMinutes = 10, redCooldown = 300,
     shareTarget = "self", iconMode = "minimap", iconAngle = 45,
     tier1 = 15, tier2 = 35, tier3 = 55,
-    badgeMode = "auto", badgeShowUnknown = false,
+    badgeEnabled = false, badgeMode = "auto", badgeShowUnknown = false,
     chatTagMode = "off", chatTagUnknown = false, chatTagRefresh = false,
 }
